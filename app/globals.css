@@ -1,0 +1,37 @@
+@import "bootstrap/dist/css/bootstrap.min.css";
+
+/*
+ * Design system minimal (§43) : quelques variables partagées, pas d'abstraction
+ * générique pour chaque élément HTML.
+ *
+ * Les couleurs d'estimé sont une aide à la lecture. Le chiffre reste toujours
+ * affiché et le contraste doit rester suffisant (§44).
+ */
+:root {
+  --estimate-1: #f8d7da;
+  --estimate-2: #fce4cd;
+  --estimate-3: #fff3cd;
+  --estimate-4: #d9ecd0;
+  --estimate-5: #c3e6cb;
+  --estimate-ink: #1f2430;
+}
+
+.estimate-1,
+.estimate-2,
+.estimate-3,
+.estimate-4,
+.estimate-5 {
+  color: var(--estimate-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.estimate-1 { background-color: var(--estimate-1); }
+.estimate-2 { background-color: var(--estimate-2); }
+.estimate-3 { background-color: var(--estimate-3); }
+.estimate-4 { background-color: var(--estimate-4); }
+.estimate-5 { background-color: var(--estimate-5); }
+
+/* Joueur déjà apparié : atténué, mais toujours lisible (§20). */
+.is-paired {
+  opacity: 0.45;
+}

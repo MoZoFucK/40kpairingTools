@@ -1,0 +1,99 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { requireUser } from "@/lib/auth/session";
+import { createClient } from "@/lib/supabase/server";
+import { ROUND_STATUS_LABEL } from "@/lib/rounds/status";
+
+/**
+ * Historique des rondes — §32.
+ *
+ * Les données ne sont jamais supprimées après une ronde (§14) : chaque ronde reste
+ * consultable avec son équipe adverse, ses listes, ses estimés et son pairing.
+ */
+export default async function HistoryPage({
+  params,
+}: {
+  params: Promise<{ tournamentId: string }>;
+}) {
+  const { tournamentId } = await params;
+  await requireUser();
+  const supabase = await createClient();
+
+  const { data: tournament } = await supabase
+    .from("tournaments")
+    .select("id, name")
+    .eq("id", tournamentId)
+    .maybeSingle();
+
+  if (!tournament) {
+    notFound();
+  }
+
+  const [{ data: rounds }, { data: teams }] = await Promise.all([
+    supabase
+      .from("rounds")
+      .select("id, number, scenario, status, opponent_team_id")
+      .eq("tournament_id", tournamentId)
+      .order("number", { ascending: true }),
+    supabase
+      .from("teams")
+      .select("id, name")
+      .eq("tournament_id", tournamentId),
+  ]);
+
+  const teamName = new Map((teams ?? []).map((team) => [team.id, team.name]));
+
+  const { data: matches } = await supabase
+    .from("matches")
+    .select("round_id, our_player_id, opponent_player_id, table_number");
+
+  const matchCount = new Map<string, number>();
+  for (const match of matches ?? []) {
+    matchCount.set(match.round_id, (matchCount.get(match.round_id) ?? 0) + 1);
+  }
+
+  return (
+    <div className="container py-4">
+      <nav aria-label="fil d'Ariane" className="mb-3">
+        <Link href={`/tournaments/${tournamentId}`} className="small">
+          ← {tournament.name}
+        </Link>
+      </nav>
+
+      <h1 className="h4 mb-4">Historique</h1>
+
+      {rounds && rounds.length > 0 ? (
+        <ul className="list-group">
+          {rounds.map((round) => (
+            <li key={round.id} className="list-group-item">
+              <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                  <Link
+                    href={`/tournaments/${tournamentId}/history/${round.id}`}
+                    className="fw-semibold"
+                  >
+                    Ronde {round.number} — {teamName.get(round.opponent_team_id) ?? "?"}
+                  </Link>
+                  {round.scenario ? (
+                    <div className="text-body-secondary small">{round.scenario}</div>
+                  ) : null}
+                </div>
+
+                <div className="d-flex align-items-center gap-2">
+                  <span className="badge text-bg-secondary">
+                    {ROUND_STATUS_LABEL[round.status]}
+                  </span>
+                  <span className="text-body-secondary small">
+                    {matchCount.get(round.id) ?? 0} matchs
+                  </span>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-body-secondary">Aucune ronde pour l&apos;instant.</p>
+      )}
+    </div>
+  );
+}
