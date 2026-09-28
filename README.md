@@ -169,6 +169,56 @@ recommandation (`best`, `recommend`, `optimal`, `suggest`, `ranking`…).
 
 ## Déploiement
 
-GitHub → Vercel → Supabase. Renseigner les variables d'environnement dans les réglages du
-projet Vercel. La CI exécute `lint`, `test` et `build` sur chaque Pull Request. Les tests Playwright ne
-tournent pas à chaque PR : ils exigent un projet Supabase et coûtent bien plus cher.
+Cible imposée par le cahier des charges : **GitHub → Vercel → Next.js → Supabase**.
+
+L'application est entièrement dynamique — Server Actions, `proxy.ts`, sessions Supabase —
+donc aucune des routes n'est statique. Un hébergement de fichiers statiques
+(GitHub Pages, GitLab Pages, un bucket S3) ne peut pas la servir : il faut un
+hébergeur qui exécute Node.
+
+### Mise en place sur Vercel
+
+1. *Add New… → Project*, importer le dépôt. Vercel détecte Next.js seul : ni commande de
+   build ni répertoire de sortie à renseigner.
+2. Renseigner dans *Settings → Environment Variables* les deux seules variables dont
+   l'application déployée a besoin :
+
+   | Variable | |
+   |---|---|
+   | `NEXT_PUBLIC_SUPABASE_URL` | URL du projet Supabase |
+   | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | clé publiable |
+
+   `SUPABASE_SECRET_KEY` **n'a pas sa place sur l'hébergeur** : aucune page ni Server
+   Action ne l'utilise. Seuls les scripts d'administration lancés depuis un poste la
+   lisent, dans `.env.local`. Ne l'ajouter que si un futur besoin serveur l'exige.
+3. La branche de production est `main`. Chaque push y déclenche un déploiement, chaque
+   Pull Request obtient sa *preview*.
+
+Node 22 est repris de `engines.node` dans `package.json` ; il n'y a rien à configurer.
+
+> **Aucune clé secrète ne doit être préfixée `NEXT_PUBLIC_`.** Next remplace les
+> `process.env.NEXT_PUBLIC_*` à la compilation : la valeur se retrouverait dans le bundle
+> servi au navigateur — et, pour la clé secrète, avec elle le droit de tout lire et tout
+> écrire, RLS contournée.
+
+Le déploiement vise le même projet Supabase que le développement tant qu'un second projet
+n'a pas été créé. Voir *Environnements Supabase* ci-dessous.
+
+### Environnements Supabase
+
+Un projet Supabase = une base ; il n'existe pas de bascule d'environnement interne. Séparer
+développement et production demande **deux projets** — le plan gratuit en autorise deux
+actifs. À prévoir le jour où l'équipe s'en sert en tournoi, avec deux conséquences :
+
+- les comptes sont propres à chaque projet : il faut recréer les utilisateurs et rejouer
+  `set-role` sur le projet de production ;
+- un projet gratuit est **mis en pause après une semaine sans activité**, et se réveille à
+  la main depuis le tableau de bord Supabase. Pour un outil utilisé quelques week-ends par
+  an, c'est l'argument principal en faveur d'un plan payant sur la production.
+
+### Intégration continue
+
+La CI (`.github/workflows/ci.yml`) exécute `lint`, `test` et `build` sur chaque Pull
+Request, avec des valeurs Supabase factices : le build ne doit dépendre d'aucun projet réel.
+Les tests Playwright ne tournent pas à chaque PR — ils exigent un projet Supabase et
+coûtent bien plus cher.
