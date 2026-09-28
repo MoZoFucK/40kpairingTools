@@ -2,6 +2,8 @@ import Link from "next/link";
 import { requireUser } from "@/lib/auth/session";
 import { canManageTeam } from "@/lib/auth/roles";
 import { createClient } from "@/lib/supabase/server";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { endingAt, dashboardTrail } from "@/lib/navigation/trail";
 import { TournamentForm } from "./TournamentForm";
 
 export const metadata = { title: "Tournois — 40K Team Pairing Assistant" };
@@ -20,6 +22,8 @@ export default async function TournamentsPage() {
 
   return (
     <div className="container py-4">
+      <Breadcrumb items={endingAt(dashboardTrail(), "Tournois")} />
+
       <h1 className="h4 mb-4">Tournois</h1>
 
       <div className="row g-4">

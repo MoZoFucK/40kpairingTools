@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { MatrixPlayer } from "@/lib/estimates/matrix";
 import { estimateLevel } from "@/lib/estimates/scale";
+import { listSummary } from "@/lib/lists/summary";
 import type { PairingState, Side } from "@/lib/pairing/types";
 import { getPossibleSelections } from "@/lib/pairing/selectors";
 import type { EstimateValue } from "@/types/domain";
@@ -14,10 +15,6 @@ import type { EstimateValue } from "@/types/domain";
  * en avant un choix (§58). Les joueurs sont présentés dans l'ordre du roster, le même d'un
  * bout à l'autre du pairing.
  */
-
-function label(player: MatrixPlayer): string {
-  return player.detachment ? `${player.army} — ${player.detachment}` : player.army;
-}
 
 /**
  * Un joueur sélectionnable, avec l'estimé du match qu'il produirait.
@@ -35,7 +32,13 @@ function PlayerButton({
   onClick,
 }: {
   player: MatrixPlayer;
-  estimate: EstimateValue | null;
+  /**
+   * `null` : le joueur n'a rien saisi. `undefined` : l'estimé n'a pas d'objet ici —
+   * au choix du défenseur, aucun adversaire n'est encore désigné, donc aucun match
+   * n'existe dont on pourrait lire l'estimé. Afficher « — » y ferait croire à une
+   * saisie manquante.
+   */
+  estimate?: EstimateValue | null;
   /** Nom seul : pendant le pairing l'écran est dense, le détail n'a pas sa place. */
   mission?: string | null;
   selected?: boolean;
@@ -46,21 +49,21 @@ function PlayerButton({
     <button
       type="button"
       className={`btn btn-sm text-start d-flex justify-content-between align-items-center gap-2 ${
-        selected ? "btn-dark" : "btn-outline-secondary"
+        selected ? "btn-primary" : "btn-outline-secondary"
       }`}
       disabled={disabled}
       onClick={onClick}
     >
       <span className="min-w-0">
         <span className="fw-semibold d-block">{player.name}</span>
-        <span className="small d-block">{label(player)}</span>
+        <span className="small d-block">{listSummary(player)}</span>
         {mission ? (
           <span className="badge text-bg-info mt-1">{mission}</span>
         ) : null}
       </span>
 
-      {estimate === null ? (
-        <span className="badge text-bg-light flex-shrink-0" title="Aucun estimé saisi">
+      {estimate === undefined ? null : estimate === null ? (
+        <span className="badge text-bg-secondary flex-shrink-0" title="Aucun estimé saisi">
           —
         </span>
       ) : (
@@ -145,7 +148,7 @@ export function PairingStep({
                   <p className="mb-0">
                     ✓ {players.get(chosen)?.name} —{" "}
                     <span className="text-body-secondary">
-                      {label(players.get(chosen)!)}
+                      {listSummary(players.get(chosen)!)}
                     </span>
                   </p>
                 ) : (
@@ -154,7 +157,6 @@ export function PairingStep({
                       <PlayerButton
                         key={player.id}
                         player={player}
-                        estimate={null}
                         disabled={busy}
                         onClick={() => onSelectDefender(side, player.id)}
                       />

@@ -5,6 +5,8 @@ import {
   areEstimatesEditable,
   canTransition,
   estimatesClosedReason,
+  isPairingReachable,
+  isPairingUnderway,
   isRoundLocked,
 } from "@/lib/rounds/status";
 import {
@@ -69,6 +71,30 @@ describe("statut de ronde (§10.6, §18)", () => {
   it("ne propose jamais un statut vers lui-même", () => {
     for (const status of ALL_STATUSES) {
       expect(allowedTransitions(status)).not.toContain(status);
+    }
+  });
+
+  /**
+   * Le bouton « Pairing » de la liste des rondes s'appuie dessus : le faire apparaître en
+   * préparation mènerait le coach à un écran qui ne sait que lui dire de revenir.
+   */
+  it("n'ouvre le pairing qu'une fois la préparation passée", () => {
+    expect(isPairingReachable("PREPARATION")).toBe(false);
+
+    for (const status of ALL_STATUSES.filter((s) => s !== "PREPARATION")) {
+      expect(isPairingReachable(status), status).toBe(true);
+    }
+  });
+
+  /** Le raccourci du tableau de bord ne remonte que les rondes que le coach a lui-même ouvertes. */
+  it("ne considère le pairing en cours que sur les deux statuts concernés", () => {
+    expect(ALL_STATUSES.filter(isPairingUnderway)).toEqual(["ESTIMATES_LOCKED", "PAIRING"]);
+  });
+
+  /** Un raccourci qui mènerait à un écran inatteignable serait pire que pas de raccourci. */
+  it("garde le raccourci inclus dans ce qui est atteignable", () => {
+    for (const status of ALL_STATUSES.filter(isPairingUnderway)) {
+      expect(isPairingReachable(status), status).toBe(true);
     }
   });
 });

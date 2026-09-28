@@ -46,6 +46,16 @@ export function dispositionEntry(value: Disposition): DispositionEntry {
   return entry;
 }
 
+/**
+ * Intitulé seul, sans la glose.
+ *
+ * C'est la forme à employer là où la place manque — une tuile de pairing, un bandeau —
+ * et là où la glose ferait doublon avec le reste de la ligne.
+ */
+export function dispositionShortLabel(value: string | null | undefined): string | null {
+  return isDisposition(value) ? dispositionEntry(value).label : null;
+}
+
 /** Libellé affichable, ou `null` si la disposition n'est pas renseignée. */
 export function dispositionLabel(value: string | null | undefined): string | null {
   if (!isDisposition(value)) {

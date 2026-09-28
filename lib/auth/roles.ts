@@ -8,6 +8,18 @@ import type { UserRole } from "@/types/domain";
  * jamais de ce qu'il faut faire.
  */
 
+/**
+ * Libellés lisibles des rôles.
+ *
+ * Ici plutôt que dans chaque composant : un rôle renommé dans un seul écran et pas dans
+ * l'autre est une incohérence que personne ne remarque avant le tournoi.
+ */
+export const ROLE_LABEL: Record<UserRole, string> = {
+  PLAYER: "Joueur",
+  COACH: "Coach",
+  ADMIN: "Administrateur",
+};
+
 /** ADMIN couvre toutes les actions du COACH (§8). */
 const RANK: Record<UserRole, number> = {
   PLAYER: 0,

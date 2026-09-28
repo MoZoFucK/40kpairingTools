@@ -1,17 +1,14 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth/session";
-import { canManageTeam } from "@/lib/auth/roles";
+import { canManageTeam, ROLE_LABEL } from "@/lib/auth/roles";
 import { createClient } from "@/lib/supabase/server";
-import { areEstimatesEditable, ROUND_STATUS_LABEL } from "@/lib/rounds/status";
-import { signOut } from "@/app/login/actions";
+import {
+  areEstimatesEditable,
+  isPairingUnderway,
+  ROUND_STATUS_LABEL,
+} from "@/lib/rounds/status";
 
 export const metadata = { title: "Tableau de bord — 40K Team Pairing Assistant" };
-
-const ROLE_LABEL = {
-  PLAYER: "Joueur",
-  COACH: "Coach",
-  ADMIN: "Administrateur",
-} as const;
 
 /**
  * Tableau de bord.
@@ -62,29 +59,45 @@ export default async function DashboardPage({
 
   const isCoach = canManageTeam(user.role);
 
+  /*
+   * Rondes dont le coach a lui-même ouvert le pairing. Le tableau de bord ne choisit pas
+   * la ronde du jour : il répète le statut déjà posé, pour épargner trois clics le jour
+   * du tournoi, où l'écran de pairing est le seul que le coach ouvre.
+   */
+  const pairingRounds = isCoach
+    ? (rounds ?? []).filter((round) => isPairingUnderway(round.status))
+    : [];
+
   return (
     <div className="container py-5" style={{ maxWidth: "44rem" }}>
-      <div className="d-flex justify-content-between align-items-start mb-4">
-        <div>
-          <h1 className="h4 mb-1">Tableau de bord</h1>
-          <p className="text-body-secondary mb-0">
-            {user.displayName ?? user.email}{" "}
-            <span className="badge text-bg-secondary">{ROLE_LABEL[user.role]}</span>
-          </p>
-        </div>
-
-        <form action={signOut}>
-          <button type="submit" className="btn btn-outline-secondary btn-sm">
-            Se déconnecter
-          </button>
-        </form>
-      </div>
+      <h1 className="h4 mb-4">Tableau de bord</h1>
 
       {refus === "role" ? (
         <div className="alert alert-warning" role="alert">
           Cette page est réservée au coach. Ton compte est enregistré comme{" "}
           {ROLE_LABEL[user.role].toLowerCase()}.
         </div>
+      ) : null}
+
+      {pairingRounds.length > 0 ? (
+        <section className="mb-4">
+          <h2 className="h6 mb-2">Pairing</h2>
+          <div className="d-grid gap-2">
+            {pairingRounds.map((round) => (
+              <Link
+                key={round.id}
+                href={`/tournaments/${round.tournament_id}/rounds/${round.id}/pairing`}
+                className="btn btn-primary text-start"
+              >
+                <span className="fw-semibold d-block">Ouvrir le pairing</span>
+                <span className="small">
+                  {tournamentName.get(round.tournament_id) ?? "Tournoi"} · ronde{" "}
+                  {round.number} · {ROUND_STATUS_LABEL[round.status].toLowerCase()}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
       ) : null}
 
       <section className="mb-4">

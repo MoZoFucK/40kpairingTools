@@ -1,7 +1,8 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { endingAt, tournamentTrail } from "@/lib/navigation/trail";
 import { MyListForm } from "./MyListForm";
 
 export const metadata = { title: "Ma liste — 40K Team Pairing Assistant" };
@@ -53,11 +54,9 @@ export default async function MyListPage({
 
   return (
     <div className="container py-4" style={{ maxWidth: "44rem" }}>
-      <nav aria-label="fil d'Ariane" className="mb-3">
-        <Link href="/dashboard" className="small">
-          ← Tableau de bord
-        </Link>
-      </nav>
+      <Breadcrumb
+        items={endingAt(tournamentTrail(tournamentId, tournament.name), "Ma liste")}
+      />
 
       <h1 className="h5 mb-1">Ma liste</h1>
       <p className="text-body-secondary small">{tournament.name}</p>

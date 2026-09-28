@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/session";
 import { canManageTeam } from "@/lib/auth/roles";
 import { createClient } from "@/lib/supabase/server";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { endingAt, tournamentTrail } from "@/lib/navigation/trail";
 import { NewOpponentTeamForm } from "./NewOpponentTeamForm";
 
 export default async function OpponentsPage({
@@ -35,11 +37,9 @@ export default async function OpponentsPage({
 
   return (
     <div className="container py-4">
-      <nav aria-label="fil d'Ariane" className="mb-3">
-        <Link href={`/tournaments/${tournamentId}`} className="small">
-          ← {tournament.name}
-        </Link>
-      </nav>
+      <Breadcrumb
+        items={endingAt(tournamentTrail(tournamentId, tournament.name), "Équipes adverses")}
+      />
 
       <h1 className="h4 mb-4">Équipes adverses</h1>
 

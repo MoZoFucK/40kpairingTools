@@ -1,10 +1,11 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/session";
 import { canManageTeam } from "@/lib/auth/roles";
 import { createClient } from "@/lib/supabase/server";
 import { ruleKey } from "@/lib/validation/army";
 import { ArmyCard } from "@/components/opponents/ArmyCard";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { endingAt, opponentsTrail } from "@/lib/navigation/trail";
 import { OpponentPlayerForm } from "./OpponentPlayerForm";
 import { OpponentRoster } from "./OpponentRoster";
 import { OpponentTeamForm } from "./OpponentTeamForm";
@@ -46,10 +47,12 @@ export default async function OpponentTeamPage({
   }));
 
   // Référentiel de règles, rapproché en mémoire : quelques dizaines de lignes tout au plus.
-  const [{ data: armyRules }, { data: detachmentRules }] = await Promise.all([
-    supabase.from("army_rules").select("army, rule"),
-    supabase.from("detachment_rules").select("army, detachment, rule"),
-  ]);
+  const [{ data: armyRules }, { data: detachmentRules }, { data: tournament }] =
+    await Promise.all([
+      supabase.from("army_rules").select("army, rule"),
+      supabase.from("detachment_rules").select("army, detachment, rule"),
+      supabase.from("tournaments").select("name").eq("id", tournamentId).maybeSingle(),
+    ]);
 
   const rules: Record<string, { armyRule?: string; detachmentRule?: string }> = {};
   for (const player of players) {
@@ -89,11 +92,12 @@ export default async function OpponentTeamPage({
 
   return (
     <div className="container py-4">
-      <nav aria-label="fil d'Ariane" className="mb-3">
-        <Link href={`/tournaments/${tournamentId}/opponents`} className="small">
-          ← Toutes les équipes adverses
-        </Link>
-      </nav>
+      <Breadcrumb
+        items={endingAt(
+          opponentsTrail(tournamentId, tournament?.name ?? "Tournoi"),
+          team.name,
+        )}
+      />
 
       <div className="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
         <h1 className="h4 mb-0">{team.name}</h1>

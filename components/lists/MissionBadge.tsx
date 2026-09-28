@@ -1,4 +1,4 @@
-import { dispositionLabel } from "@/lib/lists/dispositions";
+import { dispositionShortLabel } from "@/lib/lists/dispositions";
 import { missionsOfMatch } from "@/lib/lists/missions";
 import { MissionSummary } from "./MissionSummary";
 
@@ -41,8 +41,8 @@ export function MissionBadge({
 
       <div className="fw-semibold">{ours.name}</div>
       <div className="text-body-secondary small">
-        {dispositionLabel(ourDisposition)?.split(" — ")[0]} contre{" "}
-        {dispositionLabel(opponentDisposition)?.split(" — ")[0]}
+        {dispositionShortLabel(ourDisposition)} contre{" "}
+        {dispositionShortLabel(opponentDisposition)}
       </div>
 
       {ours.summary ? (

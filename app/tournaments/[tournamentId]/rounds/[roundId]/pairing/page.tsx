@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth/session";
 import { canRunPairing } from "@/lib/auth/roles";
@@ -6,6 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { SIX_VS_SIX } from "@/lib/pairing/protocol";
 import { isRoundLocked, ROUND_STATUS_LABEL } from "@/lib/rounds/status";
 import { PairingBoard, type StoredAction } from "@/components/pairing/PairingBoard";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { endingAt, roundTrail } from "@/lib/navigation/trail";
 import { FinalPairing } from "./FinalPairing";
 import type { MatrixPlayer } from "@/lib/estimates/matrix";
 
@@ -92,11 +93,12 @@ export default async function PairingPage({
 
   return (
     <div className="container-fluid py-4">
-      <nav aria-label="fil d'Ariane" className="mb-3">
-        <Link href={`/tournaments/${tournamentId}/rounds/${roundId}`} className="small">
-          ← Ronde {round.number}
-        </Link>
-      </nav>
+      <Breadcrumb
+        items={endingAt(
+          roundTrail(tournamentId, tournament.name, roundId, round.number),
+          "Pairing",
+        )}
+      />
 
       <div className="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
         <div>

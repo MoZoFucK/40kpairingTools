@@ -1,9 +1,10 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { areEstimatesEditable, estimatesClosedReason } from "@/lib/rounds/status";
 import { ruleKey } from "@/lib/validation/army";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { endingAt, roundTrail } from "@/lib/navigation/trail";
 import { MyEstimates, type EstimateTarget } from "./MyEstimates";
 import type { EstimateValue } from "@/types/domain";
 
@@ -26,9 +27,12 @@ export default async function MyEstimatesPage({
     notFound();
   }
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [{ data: tournament }, { data: account }] = await Promise.all([
+    supabase.from("tournaments").select("name").eq("id", tournamentId).maybeSingle(),
+    supabase.auth.getUser(),
+  ]);
+
+  const user = account.user;
 
   // La fiche joueur rattachée à ce compte dans ce tournoi.
   const { data: ourTeam } = await supabase
@@ -109,11 +113,12 @@ export default async function MyEstimatesPage({
 
   return (
     <div className="container py-4" style={{ maxWidth: "36rem" }}>
-      <nav aria-label="fil d'Ariane" className="mb-3">
-        <Link href={`/tournaments/${tournamentId}/rounds`} className="small">
-          ← Rondes
-        </Link>
-      </nav>
+      <Breadcrumb
+        items={endingAt(
+          roundTrail(tournamentId, tournament?.name ?? "Tournoi", roundId, round.number),
+          "Mes estimés",
+        )}
+      />
 
       <h1 className="h5 mb-1">Mes estimés — ronde {round.number}</h1>
       <p className="text-body-secondary small">

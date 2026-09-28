@@ -3,7 +3,9 @@ import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/session";
 import { canManageRounds } from "@/lib/auth/roles";
 import { createClient } from "@/lib/supabase/server";
-import { ROUND_STATUS_LABEL } from "@/lib/rounds/status";
+import { isPairingReachable, ROUND_STATUS_LABEL } from "@/lib/rounds/status";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { endingAt, tournamentTrail } from "@/lib/navigation/trail";
 import { NewRoundForm } from "./NewRoundForm";
 
 export default async function RoundsPage({
@@ -45,11 +47,9 @@ export default async function RoundsPage({
 
   return (
     <div className="container py-4">
-      <nav aria-label="fil d'Ariane" className="mb-3">
-        <Link href={`/tournaments/${tournamentId}`} className="small">
-          ← {tournament.name}
-        </Link>
-      </nav>
+      <Breadcrumb
+        items={endingAt(tournamentTrail(tournamentId, tournament.name), "Rondes")}
+      />
 
       <h1 className="h4 mb-4">Rondes</h1>
 
@@ -84,6 +84,14 @@ export default async function RoundsPage({
                     >
                       Mes estimés
                     </Link>
+                    {isCoach && isPairingReachable(round.status) ? (
+                      <Link
+                        href={`/tournaments/${tournamentId}/rounds/${round.id}/pairing`}
+                        className="btn btn-primary btn-sm"
+                      >
+                        Pairing
+                      </Link>
+                    ) : null}
                   </div>
                 </li>
               ))}

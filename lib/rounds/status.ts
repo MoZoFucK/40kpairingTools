@@ -30,6 +30,29 @@ export function isRoundLocked(status: RoundStatus): boolean {
 }
 
 /**
+ * L'écran de pairing a-t-il quelque chose à montrer pour ce statut ?
+ *
+ * Tout sauf `PREPARATION`, où aucun effectif n'est encore figé : y conduire le coach
+ * l'amènerait sur un écran qui ne sait que lui dire de revenir plus tard.
+ *
+ * Ne dit pas s'il *faut* ouvrir le pairing, seulement si l'écran est atteignable.
+ */
+export function isPairingReachable(status: RoundStatus): boolean {
+  return status !== "PREPARATION";
+}
+
+/**
+ * Le pairing de cette ronde est-il en cours, ou sur le point de commencer ?
+ *
+ * Sert à remonter la ronde du jour sur le tableau de bord. Critère purement mécanique,
+ * lu dans le statut que le coach a lui-même posé : l'outil ne devine pas quelle ronde
+ * compte, il répète celle que le coach a déjà désignée.
+ */
+export function isPairingUnderway(status: RoundStatus): boolean {
+  return status === "ESTIMATES_LOCKED" || status === "PAIRING";
+}
+
+/**
  * Transitions offertes au coach depuis un statut donné.
  *
  * L'ordre est celui du déroulé normal, mais les retours en arrière restent possibles tant

@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { endingAt, tournamentTrail } from "@/lib/navigation/trail";
 import { ROUND_STATUS_LABEL } from "@/lib/rounds/status";
 
 /**
@@ -54,11 +56,9 @@ export default async function HistoryPage({
 
   return (
     <div className="container py-4">
-      <nav aria-label="fil d'Ariane" className="mb-3">
-        <Link href={`/tournaments/${tournamentId}`} className="small">
-          ← {tournament.name}
-        </Link>
-      </nav>
+      <Breadcrumb
+        items={endingAt(tournamentTrail(tournamentId, tournament.name), "Historique")}
+      />
 
       <h1 className="h4 mb-4">Historique</h1>
 

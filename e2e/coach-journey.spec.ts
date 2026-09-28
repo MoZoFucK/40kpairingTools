@@ -43,6 +43,20 @@ test.describe("parcours du coach", () => {
     await expect(page.getByRole("button", { name: "Nos joueurs en lignes" })).toBeVisible();
   });
 
+  /**
+   * Le jour du tournoi, le pairing est le seul écran que le coach ouvre. Il doit être à
+   * portée depuis la liste des rondes, sans passer par la fiche de la ronde.
+   */
+  test("atteint le pairing depuis la liste des rondes", async ({ page }) => {
+    await openDemoTournament(page);
+    await page.getByRole("link", { name: "Rondes" }).click();
+
+    await page.getByRole("link", { name: "Pairing", exact: true }).first().click();
+
+    await expect(page).toHaveURL(/\/pairing$/);
+    await expect(page.getByRole("heading", { name: /Ronde 1/ })).toBeVisible();
+  });
+
   test("n'affiche aucune recommandation stratégique", async ({ page }) => {
     await openDemoTournament(page);
     await page.getByRole("link", { name: "Rondes" }).click();

@@ -4,6 +4,8 @@ import { requireUser } from "@/lib/auth/session";
 import { canManageTeam } from "@/lib/auth/roles";
 import { createClient } from "@/lib/supabase/server";
 import { teamSizeNotice } from "@/lib/validation/team";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { endingAt, tournamentsTrail } from "@/lib/navigation/trail";
 import { TournamentForm } from "../TournamentForm";
 import { TeamForm } from "./TeamForm";
 import { PlayerForm } from "./PlayerForm";
@@ -68,11 +70,7 @@ export default async function TournamentPage({
 
   return (
     <div className="container py-4">
-      <nav aria-label="fil d'Ariane" className="mb-3">
-        <Link href="/tournaments" className="small">
-          ← Tous les tournois
-        </Link>
-      </nav>
+      <Breadcrumb items={endingAt(tournamentsTrail(), tournament.name)} />
 
       <div className="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
         <h1 className="h4 mb-0">{tournament.name}</h1>

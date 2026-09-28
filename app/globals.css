@@ -1,19 +1,269 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
 
 /*
- * Design system minimal (§43) : quelques variables partagées, pas d'abstraction
- * générique pour chaque élément HTML.
+ * Design system minimal (§43) : un thème sombre et quelques variables partagées, pas
+ * d'abstraction générique pour chaque élément HTML.
  *
- * Les couleurs d'estimé sont une aide à la lecture. Le chiffre reste toujours
- * affiché et le contraste doit rester suffisant (§44).
+ * Le thème s'appuie sur le mode sombre natif de Bootstrap 5.3 (`data-bs-theme="dark"`,
+ * posé sur <html> dans le layout). On ne redéfinit ici que les variables du thème :
+ * les composants Bootstrap suivent sans être réécrits, et une montée de version de
+ * Bootstrap ne casse rien.
+ *
+ * Tous les couples encre/fond de ce fichier tiennent le ratio AA de 4.5:1 (§44), y
+ * compris les couleurs d'estimé. `tests/theme-contrast.test.ts` le vérifie en lisant
+ * ce fichier : une couleur retouchée à la main fait échouer la suite.
  */
-:root {
-  --estimate-1: #f8d7da;
-  --estimate-2: #fce4cd;
-  --estimate-3: #fff3cd;
-  --estimate-4: #d9ecd0;
-  --estimate-5: #c3e6cb;
-  --estimate-ink: #1f2430;
+
+/* ---------------------------------------------------------------------------
+ * Palette
+ *
+ * Registre volontairement sombre et désaturé — noir de vide, gris os, laiton impérial.
+ * Le rouge reste réservé au danger : un accent rouge pour les actions principales
+ * rendrait « valider » et « supprimer » indistinguables au premier coup d'œil.
+ * ------------------------------------------------------------------------ */
+[data-bs-theme="dark"] {
+  --gd-void: #0b0d10;
+  --gd-surface: #14181d;
+  --gd-surface-raised: #1b2027;
+  --gd-line: #2b323b;
+
+  --gd-bone: #c9ced6;
+  --gd-bone-dim: #8f98a4;
+  --gd-bone-bright: #eaeef3;
+
+  --gd-brass: #c08a33;
+  --gd-brass-bright: #d9a441;
+  --gd-brass-ink: #120d05;
+
+  --gd-blood: #8c1c1c;
+
+  /* Variables Bootstrap. */
+  --bs-body-bg: var(--gd-void);
+  --bs-body-bg-rgb: 11, 13, 16;
+  --bs-body-color: var(--gd-bone);
+  --bs-body-color-rgb: 201, 206, 214;
+
+  --bs-emphasis-color: var(--gd-bone-bright);
+  --bs-emphasis-color-rgb: 234, 238, 243;
+  --bs-heading-color: var(--gd-bone-bright);
+
+  --bs-secondary-color: var(--gd-bone-dim);
+  --bs-secondary-color-rgb: 143, 152, 164;
+  --bs-secondary-bg: var(--gd-surface-raised);
+  --bs-tertiary-color: var(--gd-bone-dim);
+  --bs-tertiary-bg: var(--gd-surface);
+
+  --bs-border-color: var(--gd-line);
+  --bs-border-color-translucent: rgba(201, 206, 214, 0.12);
+
+  --bs-link-color: var(--gd-brass-bright);
+  --bs-link-color-rgb: 217, 164, 65;
+  --bs-link-hover-color: #efc77a;
+  --bs-link-hover-color-rgb: 239, 199, 122;
+
+  --bs-code-color: var(--gd-brass-bright);
+
+  /* Teintes des badges `text-bg-*` et des alertes. */
+  --bs-secondary-rgb: 37, 44, 53;
+  --bs-info-rgb: 38, 74, 92;
+  --bs-danger-rgb: 140, 28, 28;
+}
+
+/* ---------------------------------------------------------------------------
+ * Fond
+ *
+ * Une vignette fixe évite l'aplat noir uniforme, qui écrase le relief des cartes.
+ * `background-attachment: fixed` la garde immobile au défilement : elle appartient au
+ * décor, pas au contenu.
+ * ------------------------------------------------------------------------ */
+[data-bs-theme="dark"] body {
+  background-color: var(--gd-void);
+  background-image:
+    radial-gradient(90rem 50rem at 50% -20%, rgba(192, 138, 51, 0.09), transparent 60%),
+    radial-gradient(70rem 40rem at 100% 100%, rgba(140, 28, 28, 0.08), transparent 65%);
+  background-attachment: fixed;
+}
+
+/* ---------------------------------------------------------------------------
+ * Surfaces
+ *
+ * Bootstrap donne aux cartes et aux listes la couleur du corps : sur fond noir, elles
+ * disparaîtraient. On les remonte d'un cran pour que le contenu se détache.
+ * ------------------------------------------------------------------------ */
+[data-bs-theme="dark"] .card {
+  --bs-card-bg: var(--gd-surface);
+  --bs-card-border-color: var(--gd-line);
+}
+
+[data-bs-theme="dark"] .list-group {
+  --bs-list-group-bg: var(--gd-surface);
+  --bs-list-group-border-color: var(--gd-line);
+  --bs-list-group-action-hover-bg: var(--gd-surface-raised);
+  --bs-list-group-action-hover-color: var(--gd-bone-bright);
+}
+
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+  background-color: var(--gd-surface-raised);
+  border-color: var(--gd-line);
+  color: var(--gd-bone-bright);
+}
+
+[data-bs-theme="dark"] .form-control:focus,
+[data-bs-theme="dark"] .form-select:focus {
+  background-color: var(--gd-surface-raised);
+  border-color: var(--gd-brass);
+  box-shadow: 0 0 0 0.2rem rgba(192, 138, 51, 0.25);
+}
+
+[data-bs-theme="dark"] .form-control::placeholder {
+  color: var(--gd-bone-dim);
+}
+
+[data-bs-theme="dark"] .table {
+  --bs-table-border-color: var(--gd-line);
+}
+
+/* ---------------------------------------------------------------------------
+ * Boutons
+ *
+ * `btn-primary` passe au laiton avec une encre presque noire : sur fond sombre, un
+ * aplat clair porte mieux l'action principale qu'un bleu saturé.
+ * ------------------------------------------------------------------------ */
+[data-bs-theme="dark"] .btn-primary {
+  --bs-btn-bg: var(--gd-brass);
+  --bs-btn-border-color: var(--gd-brass);
+  --bs-btn-color: var(--gd-brass-ink);
+  --bs-btn-hover-bg: var(--gd-brass-bright);
+  --bs-btn-hover-border-color: var(--gd-brass-bright);
+  --bs-btn-hover-color: var(--gd-brass-ink);
+  --bs-btn-active-bg: #a8762a;
+  --bs-btn-active-border-color: #a8762a;
+  --bs-btn-active-color: var(--gd-brass-ink);
+  --bs-btn-disabled-bg: #6b5324;
+  --bs-btn-disabled-border-color: #6b5324;
+  --bs-btn-disabled-color: #2a2314;
+}
+
+[data-bs-theme="dark"] .btn-outline-primary {
+  --bs-btn-color: var(--gd-brass-bright);
+  --bs-btn-border-color: #6b5324;
+  --bs-btn-hover-bg: var(--gd-brass);
+  --bs-btn-hover-border-color: var(--gd-brass);
+  --bs-btn-hover-color: var(--gd-brass-ink);
+  --bs-btn-active-bg: var(--gd-brass);
+  --bs-btn-active-border-color: var(--gd-brass);
+  --bs-btn-active-color: var(--gd-brass-ink);
+  --bs-btn-disabled-color: #6b5324;
+  --bs-btn-disabled-border-color: #3d2f16;
+}
+
+[data-bs-theme="dark"] .btn-outline-secondary {
+  --bs-btn-color: var(--gd-bone);
+  --bs-btn-border-color: var(--gd-line);
+  --bs-btn-hover-bg: var(--gd-surface-raised);
+  --bs-btn-hover-border-color: var(--gd-bone-dim);
+  --bs-btn-hover-color: var(--gd-bone-bright);
+  --bs-btn-active-bg: var(--gd-surface-raised);
+  --bs-btn-active-border-color: var(--gd-bone-dim);
+  --bs-btn-active-color: var(--gd-bone-bright);
+}
+
+[data-bs-theme="dark"] .btn-danger {
+  --bs-btn-bg: var(--gd-blood);
+  --bs-btn-border-color: var(--gd-blood);
+  --bs-btn-color: #ffd7d7;
+  --bs-btn-hover-bg: #a52424;
+  --bs-btn-hover-border-color: #a52424;
+  --bs-btn-hover-color: #ffe3e3;
+}
+
+/* ---------------------------------------------------------------------------
+ * Chrome applicatif
+ * ------------------------------------------------------------------------ */
+.app-navbar {
+  background-color: #101418;
+  border-bottom: 1px solid var(--gd-line);
+  box-shadow: 0 1px 0 rgba(192, 138, 51, 0.25);
+}
+
+/* Le titre est le seul endroit où l'on se permet une typographie martiale. */
+.app-brand {
+  color: var(--gd-bone-bright);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.app-brand:hover {
+  color: var(--gd-brass-bright);
+}
+
+.app-brand .app-brand-mark {
+  color: var(--gd-brass);
+}
+
+/* Onglet courant : un liseré de laiton, lisible sans dépendre de la seule couleur du texte. */
+.app-navlink {
+  border-bottom: 2px solid transparent;
+  color: var(--gd-bone-dim);
+  text-decoration: none;
+}
+
+.app-navlink:hover {
+  color: var(--gd-bone-bright);
+}
+
+.app-navlink[aria-current="page"] {
+  border-bottom-color: var(--gd-brass);
+  color: var(--gd-bone-bright);
+}
+
+.app-user-chip {
+  background-color: var(--gd-surface-raised);
+  border: 1px solid var(--gd-line);
+  border-radius: 999px;
+}
+
+/* Initiales plutôt qu'une image : aucun avatar à téléverser, aucune requête réseau. */
+.app-avatar {
+  background-color: var(--gd-brass);
+  color: var(--gd-brass-ink);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  height: 1.75rem;
+  width: 1.75rem;
+}
+
+.app-breadcrumb {
+  --bs-breadcrumb-divider-color: var(--gd-bone-dim);
+  --bs-breadcrumb-item-active-color: var(--gd-bone-bright);
+  --bs-breadcrumb-font-size: 0.875rem;
+}
+
+/* ---------------------------------------------------------------------------
+ * Estimés
+ *
+ * Les couleurs d'estimé sont une aide à la lecture. Le chiffre reste toujours affiché
+ * et le contraste doit rester suffisant (§44) : sur fond sombre, les pastels d'origine
+ * auraient brillé au point d'attirer l'œil plus que le chiffre lui-même.
+ * ------------------------------------------------------------------------ */
+[data-bs-theme="dark"] {
+  --estimate-1-bg: #5c1a1f;
+  --estimate-2-bg: #6b3a18;
+  --estimate-3-bg: #5e5018;
+  --estimate-4-bg: #2b5230;
+  --estimate-5-bg: #17572f;
+
+  --estimate-1-ink: #ffd9dc;
+  --estimate-2-ink: #ffe0c4;
+  --estimate-3-ink: #ffeeb8;
+  --estimate-4-ink: #d5f0d2;
+  --estimate-5-ink: #c4f2d5;
 }
 
 .estimate-1,
@@ -21,17 +271,93 @@
 .estimate-3,
 .estimate-4,
 .estimate-5 {
-  color: var(--estimate-ink);
   font-variant-numeric: tabular-nums;
 }
 
-.estimate-1 { background-color: var(--estimate-1); }
-.estimate-2 { background-color: var(--estimate-2); }
-.estimate-3 { background-color: var(--estimate-3); }
-.estimate-4 { background-color: var(--estimate-4); }
-.estimate-5 { background-color: var(--estimate-5); }
+/*
+ * `--bs-table-bg` et `--bs-table-color` en plus des propriétés directes : dans une
+ * cellule de tableau, Bootstrap repeint le fond via une règle plus spécifique que
+ * `.estimate-N`, et la couleur seule serait avalée. Poser les variables sur la cellule
+ * la fait gagner sans recourir à `!important`.
+ */
+.estimate-1 {
+  --bs-table-bg: var(--estimate-1-bg);
+  --bs-table-color: var(--estimate-1-ink);
+  background-color: var(--estimate-1-bg);
+  color: var(--estimate-1-ink);
+}
 
-/* Joueur déjà apparié : atténué, mais toujours lisible (§20). */
+.estimate-2 {
+  --bs-table-bg: var(--estimate-2-bg);
+  --bs-table-color: var(--estimate-2-ink);
+  background-color: var(--estimate-2-bg);
+  color: var(--estimate-2-ink);
+}
+
+.estimate-3 {
+  --bs-table-bg: var(--estimate-3-bg);
+  --bs-table-color: var(--estimate-3-ink);
+  background-color: var(--estimate-3-bg);
+  color: var(--estimate-3-ink);
+}
+
+.estimate-4 {
+  --bs-table-bg: var(--estimate-4-bg);
+  --bs-table-color: var(--estimate-4-ink);
+  background-color: var(--estimate-4-bg);
+  color: var(--estimate-4-ink);
+}
+
+.estimate-5 {
+  --bs-table-bg: var(--estimate-5-bg);
+  --bs-table-color: var(--estimate-5-ink);
+  background-color: var(--estimate-5-bg);
+  color: var(--estimate-5-ink);
+}
+
+/*
+ * Bouton d'estimé sélectionné.
+ *
+ * Sur fond sombre, un `btn-dark` sélectionné ne se distingue plus d'un bouton au repos.
+ * Le bouton reprend donc la couleur de l'échelle — la même que dans la matrice, si bien
+ * que le joueur et le coach lisent le même code. Le chiffre reste affiché et
+ * `aria-pressed` porte l'état : la couleur ne fait que le confirmer (§44).
+ */
+.btn.estimate-1 { --est-bg: var(--estimate-1-bg); --est-ink: var(--estimate-1-ink); }
+.btn.estimate-2 { --est-bg: var(--estimate-2-bg); --est-ink: var(--estimate-2-ink); }
+.btn.estimate-3 { --est-bg: var(--estimate-3-bg); --est-ink: var(--estimate-3-ink); }
+.btn.estimate-4 { --est-bg: var(--estimate-4-bg); --est-ink: var(--estimate-4-ink); }
+.btn.estimate-5 { --est-bg: var(--estimate-5-bg); --est-ink: var(--estimate-5-ink); }
+
+.btn.estimate-1,
+.btn.estimate-2,
+.btn.estimate-3,
+.btn.estimate-4,
+.btn.estimate-5 {
+  --bs-btn-bg: var(--est-bg);
+  --bs-btn-color: var(--est-ink);
+  --bs-btn-hover-bg: var(--est-bg);
+  --bs-btn-hover-color: var(--est-ink);
+  --bs-btn-active-bg: var(--est-bg);
+  --bs-btn-active-color: var(--est-ink);
+  --bs-btn-disabled-bg: var(--est-bg);
+  --bs-btn-disabled-color: var(--est-ink);
+  --bs-btn-border-color: rgba(255, 255, 255, 0.3);
+  --bs-btn-hover-border-color: rgba(255, 255, 255, 0.55);
+  --bs-btn-active-border-color: rgba(255, 255, 255, 0.55);
+  --bs-btn-disabled-border-color: rgba(255, 255, 255, 0.2);
+  font-weight: 700;
+}
+
+/*
+ * Joueur déjà apparié : atténué, mais toujours lisible (§20).
+ *
+ * L'opacité s'applique à la cellule entière, encre et fond ensemble : les deux se
+ * rapprochent du fond de page et l'écart entre eux se referme. Sur fond clair, 0.45
+ * restait lisible ; sur fond sombre, le pire couple d'estimé tombait à 2.9:1. 0.7 est la
+ * valeur la plus atténuée qui tienne encore le AA (§44) — vérifiée par
+ * `tests/theme-contrast.test.ts`, qui lit cette valeur ici même.
+ */
 .is-paired {
-  opacity: 0.45;
+  opacity: 0.7;
 }

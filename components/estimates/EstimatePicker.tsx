@@ -60,7 +60,7 @@ export function EstimatePicker({
             <button
               key={level.value}
               type="button"
-              className={`btn ${selected ? "btn-dark" : "btn-outline-secondary"}`}
+              className={`btn ${selected ? level.className : "btn-outline-secondary"}`}
               aria-pressed={selected}
               aria-label={`${level.value} — ${level.label}`}
               title={level.label}

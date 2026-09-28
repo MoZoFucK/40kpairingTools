@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
@@ -6,6 +5,8 @@ import { buildMatrix, getCell, type MatrixPlayer } from "@/lib/estimates/matrix"
 import { estimateLevel } from "@/lib/estimates/scale";
 import { ROUND_STATUS_LABEL } from "@/lib/rounds/status";
 import { describeStoredAction } from "@/lib/pairing/journal";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { endingAt, historyTrail } from "@/lib/navigation/trail";
 import type { StoredPairingAction } from "@/lib/pairing/persistence";
 
 /**
@@ -33,15 +34,17 @@ export default async function HistoryRoundPage({
     notFound();
   }
 
-  const [{ data: opponentTeam }, { data: ourTeam }] = await Promise.all([
-    supabase.from("teams").select("name").eq("id", round.opponent_team_id).maybeSingle(),
-    supabase
-      .from("teams")
-      .select("id, name")
-      .eq("tournament_id", tournamentId)
-      .eq("kind", "OUR_TEAM")
-      .maybeSingle(),
-  ]);
+  const [{ data: opponentTeam }, { data: ourTeam }, { data: tournament }] =
+    await Promise.all([
+      supabase.from("teams").select("name").eq("id", round.opponent_team_id).maybeSingle(),
+      supabase
+        .from("teams")
+        .select("id, name")
+        .eq("tournament_id", tournamentId)
+        .eq("kind", "OUR_TEAM")
+        .maybeSingle(),
+      supabase.from("tournaments").select("name").eq("id", tournamentId).maybeSingle(),
+    ]);
 
   const [{ data: ours }, { data: theirs }] = await Promise.all([
     ourTeam
@@ -87,11 +90,12 @@ export default async function HistoryRoundPage({
 
   return (
     <div className="container py-4">
-      <nav aria-label="fil d'Ariane" className="mb-3">
-        <Link href={`/tournaments/${tournamentId}/history`} className="small">
-          ← Historique
-        </Link>
-      </nav>
+      <Breadcrumb
+        items={endingAt(
+          historyTrail(tournamentId, tournament?.name ?? "Tournoi"),
+          `Ronde ${round.number}`,
+        )}
+      />
 
       <div className="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
         <div>

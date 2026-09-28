@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 import type { MatrixPlayer } from "@/lib/estimates/matrix";
 import { ROUND_STATUS_LABEL, allowedTransitions } from "@/lib/rounds/status";
 import { LiveMatrix } from "@/components/estimates/LiveMatrix";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { endingAt, roundsTrail } from "@/lib/navigation/trail";
 import { changeRoundStatus } from "../actions";
 
 export default async function RoundPage({
@@ -27,11 +29,10 @@ export default async function RoundPage({
     notFound();
   }
 
-  const { data: opponentTeam } = await supabase
-    .from("teams")
-    .select("name")
-    .eq("id", round.opponent_team_id)
-    .maybeSingle();
+  const [{ data: opponentTeam }, { data: tournament }] = await Promise.all([
+    supabase.from("teams").select("name").eq("id", round.opponent_team_id).maybeSingle(),
+    supabase.from("tournaments").select("name").eq("id", tournamentId).maybeSingle(),
+  ]);
 
   const { data: ourTeam } = await supabase
     .from("teams")
@@ -67,11 +68,12 @@ export default async function RoundPage({
 
   return (
     <div className="container-fluid py-4">
-      <nav aria-label="fil d'Ariane" className="mb-3">
-        <Link href={`/tournaments/${tournamentId}/rounds`} className="small">
-          ← Rondes
-        </Link>
-      </nav>
+      <Breadcrumb
+        items={endingAt(
+          roundsTrail(tournamentId, tournament?.name ?? "Tournoi"),
+          `Ronde ${round.number}`,
+        )}
+      />
 
       <div className="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
         <div>
