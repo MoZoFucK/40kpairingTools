@@ -2,10 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireCoach, requireUser } from "@/lib/auth/session";
+import { requireCoach } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
-import { areEstimatesEditable, canTransition } from "@/lib/rounds/status";
-import { isEstimateValue } from "@/lib/estimates/scale";
+import { canTransition } from "@/lib/rounds/status";
 import type { RoundStatus } from "@/types/domain";
 
 export interface FormState {
@@ -83,83 +82,6 @@ export async function changeRoundStatus(formData: FormData): Promise<void> {
   await supabase.from("rounds").update({ status: target }).eq("id", roundId);
 
   revalidatePath(`/tournaments/${tournamentId}/rounds/${roundId}`);
-}
-
-export interface SaveEstimateResult {
-  ok: boolean;
-  message?: string;
-}
-
-/**
- * Enregistre un estimé d'un joueur.
- *
- * Trois vérifications indépendantes de l'interface : la valeur est dans l'échelle, la
- * fiche joueur appartient bien à l'utilisateur, et la ronde autorise encore la saisie.
- * La RLS refait le même contrôle en base — c'est volontaire, aucune des deux n'est de
- * trop (§38).
- */
-export async function saveEstimate(
-  playerId: string,
-  opponentPlayerId: string,
-  value: number,
-): Promise<SaveEstimateResult> {
-  await requireUser();
-
-  if (!isEstimateValue(value)) {
-    return { ok: false, message: "Un estimé doit être compris entre 1 et 5." };
-  }
-
-  const supabase = await createClient();
-
-  const { data: player } = await supabase
-    .from("players")
-    .select("id, user_id")
-    .eq("id", playerId)
-    .maybeSingle();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!player || !user || player.user_id !== user.id) {
-    return { ok: false, message: "Tu ne peux modifier que tes propres estimés." };
-  }
-
-  const { data: opponent } = await supabase
-    .from("players")
-    .select("team_id")
-    .eq("id", opponentPlayerId)
-    .maybeSingle();
-
-  if (!opponent) {
-    return { ok: false, message: "Ce joueur adverse n'existe plus." };
-  }
-
-  const { data: rounds } = await supabase
-    .from("rounds")
-    .select("status")
-    .eq("opponent_team_id", opponent.team_id);
-
-  const closed = (rounds ?? []).find((round) => !areEstimatesEditable(round.status));
-  if (closed) {
-    return {
-      ok: false,
-      message: "Impossible de modifier cet estimé : la phase d'estimation est verrouillée.",
-    };
-  }
-
-  const { error } = await supabase
-    .from("estimates")
-    .upsert(
-      { player_id: playerId, opponent_player_id: opponentPlayerId, value },
-      { onConflict: "player_id,opponent_player_id" },
-    );
-
-  if (error) {
-    return { ok: false, message: "L'enregistrement a échoué. Vérifie ta connexion." };
-  }
-
-  return { ok: true };
 }
 
 /** Rattache un compte utilisateur à une fiche joueur, ou l'en détache. */

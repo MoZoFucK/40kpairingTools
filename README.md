@@ -137,6 +137,19 @@ saisie, sa liste et ses estimés sont vides ; ceux de ses coéquipiers sont remp
 règles d'armée. Les comptes sont conservés. Comptes et joueur visés se changent via
 `BETA_COACH_EMAIL`, `BETA_PLAYER_EMAIL` et `BETA_PLAYER_NAME`.
 
+### Dispositions des listes V10
+
+```bash
+npm run dispositions:random            # affiche le tirage, ne modifie rien
+npm run dispositions:random -- --yes   # enregistre le tirage
+```
+
+Les listes du classeur datent de la V10 et n'ont pas de disposition : aucune mission
+primaire ne s'affiche sans elle. Le script en tire une au hasard pour chaque liste qui n'en
+a pas, de sorte que chaque équipe — la nôtre comme les adverses — aligne au moins une
+liste de chaque disposition (une équipe de 6 a donc un doublon). Une disposition déjà
+saisie est conservée. `npm run beta:dataset` applique le même tirage à la création.
+
 ## Commandes
 
 ```bash

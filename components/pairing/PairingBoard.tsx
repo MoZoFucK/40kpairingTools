@@ -8,6 +8,7 @@ import {
   type RawEstimate,
 } from "@/lib/estimates/matrix";
 import { estimateLevel } from "@/lib/estimates/scale";
+import { EstimateComments } from "@/components/estimates/EstimateComments";
 import { replayActions } from "@/lib/pairing/engine";
 import { missionFor as lookupMission } from "@/lib/lists/missions";
 import { describeStoredAction } from "@/lib/pairing/journal";
@@ -200,7 +201,8 @@ export function PairingBoard({
                     </th>
 
                     {opponentPlayers.map((opponent) => {
-                      const value = getCell(matrix, ourPlayer.id, opponent.id)?.value ?? null;
+                      const cell = getCell(matrix, ourPlayer.id, opponent.id);
+                      const value = cell?.value ?? null;
                       const stillOpen = ourAvailable && availableOpponent.has(opponent.id);
 
                       return (
@@ -209,8 +211,14 @@ export function PairingBoard({
                           className={`text-center fw-semibold ${
                             value !== null && stillOpen ? estimateLevel(value).className : ""
                           } ${stillOpen ? "" : "is-paired"}`}
+                          title={cell?.comment ? `« ${cell.comment} »` : undefined}
                         >
                           {value ?? "—"}
+                          {cell?.comment ? (
+                            <sup className="ms-1" aria-label="avec commentaire">
+                              ✎
+                            </sup>
+                          ) : null}
                         </td>
                       );
                     })}
@@ -220,6 +228,11 @@ export function PairingBoard({
             </tbody>
           </table>
         </div>
+
+        <EstimateComments
+          matrix={matrix}
+          availableIds={new Set([...availableOur, ...availableOpponent])}
+        />
       </section>
 
       <section>

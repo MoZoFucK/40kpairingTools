@@ -4,6 +4,8 @@ import { requireUser } from "@/lib/auth/session";
 import { canManageTeam } from "@/lib/auth/roles";
 import { createClient } from "@/lib/supabase/server";
 import { teamSizeNotice } from "@/lib/validation/team";
+import { describeMissing, missingListFields } from "@/lib/lists/completeness";
+import { dispositionShortLabel } from "@/lib/lists/dispositions";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { PageHelp } from "@/components/help/PageHelp";
 import { endingAt, tournamentsTrail } from "@/lib/navigation/trail";
@@ -42,7 +44,7 @@ export default async function TournamentPage({
   const { data: players } = ourTeam
     ? await supabase
         .from("players")
-        .select("id, name, army, detachment, list_name, user_id")
+        .select("id, name, army, detachment, list_name, user_id, disposition")
         .eq("team_id", ourTeam.id)
         .order("created_at", { ascending: true })
     : { data: [] };
@@ -54,7 +56,12 @@ export default async function TournamentPage({
     detachment: player.detachment,
     listName: player.list_name,
     userId: player.user_id,
+    disposition: dispositionShortLabel(player.disposition),
+    missing: missingListFields(player),
   }));
+
+  const isPlayerHere = roster.some((player) => player.userId === user.id);
+  const incomplete = roster.filter((player) => player.missing.length > 0);
 
   const isCoach = canManageTeam(user.role);
 
@@ -86,11 +93,27 @@ export default async function TournamentPage({
         * badge, ils passaient inaperçus.
         */}
       <div className="d-flex flex-wrap gap-2 mb-4">
+        {isPlayerHere ? (
+          <>
+            <Link
+              href={`/tournaments/${tournamentId}/estimates`}
+              className="btn btn-primary btn-sm"
+            >
+              Mes estimés
+            </Link>
+            <Link
+              href={`/tournaments/${tournamentId}/my-list`}
+              className="btn btn-outline-primary btn-sm"
+            >
+              Ma liste
+            </Link>
+          </>
+        ) : null}
         <Link
           href={`/tournaments/${tournamentId}/rounds`}
           className="btn btn-outline-primary btn-sm"
         >
-          Rondes et estimés
+          {isCoach ? "Rondes et matrices" : "Rondes"}
         </Link>
         <Link
           href={`/tournaments/${tournamentId}/opponents`}
@@ -157,11 +180,33 @@ export default async function TournamentPage({
               </div>
             ) : null}
 
+            {isCoach && incomplete.length > 0 ? (
+              <div className="alert alert-warning py-2" role="status">
+                <div className="fw-semibold mb-1">
+                  {incomplete.length === 1
+                    ? "1 liste n'est pas saisie"
+                    : `${incomplete.length} listes ne sont pas saisies`}
+                </div>
+                <ul className="mb-0 ps-3 small">
+                  {incomplete.map((player) => (
+                    <li key={player.id}>
+                      {player.name} — manque {describeMissing(player.missing)}
+                      {player.userId ? "" : " (aucun compte rattaché : à saisir par toi)"}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
             {isCoach ? (
               <PlayerList
                 tournamentId={tournamentId}
                 teamId={ourTeam.id}
-                players={roster}
+                players={roster.map((player) => ({
+                  ...player,
+                  missingLabel:
+                    player.missing.length > 0 ? describeMissing(player.missing) : null,
+                }))}
                 accounts={accounts}
               />
             ) : (
@@ -172,7 +217,11 @@ export default async function TournamentPage({
                     <span className="text-body-secondary small">
                       {player.army}
                       {player.detachment ? ` — ${player.detachment}` : ""}
+                      {player.disposition ? ` — ${player.disposition}` : ""}
                     </span>
+                    {player.missing.length > 0 ? (
+                      <span className="badge text-bg-warning ms-2">Liste à compléter</span>
+                    ) : null}
                   </li>
                 ))}
               </ul>

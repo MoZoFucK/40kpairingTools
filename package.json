@@ -15,6 +15,7 @@
     "seed": "node scripts/seed.mjs",
     "import:xlsx": "node scripts/import-xlsx.mjs",
     "beta:dataset": "node scripts/beta-dataset.mjs",
+    "dispositions:random": "node scripts/random-dispositions.mjs",
     "test:e2e": "playwright test"
   },
   "dependencies": {

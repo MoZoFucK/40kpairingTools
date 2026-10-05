@@ -51,6 +51,17 @@ export function roundTrail(
   ];
 }
 
+/**
+ * Saisie des estimés du joueur, rangée par équipe adverse et non par ronde : le joueur
+ * estime une équipe avant que le tirage dise quand il la rencontrera.
+ */
+export function estimatesTrail(tournamentId: string, tournamentName: string): Crumb[] {
+  return [
+    ...tournamentTrail(tournamentId, tournamentName),
+    { label: "Mes estimés", href: `/tournaments/${tournamentId}/estimates` },
+  ];
+}
+
 export function historyTrail(tournamentId: string, tournamentName: string): Crumb[] {
   return [
     ...tournamentTrail(tournamentId, tournamentName),

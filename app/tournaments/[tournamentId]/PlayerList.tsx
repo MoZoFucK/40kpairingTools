@@ -13,7 +13,12 @@ export function PlayerList({
 }: {
   tournamentId: string;
   teamId: string;
-  players: readonly (EditablePlayer & { userId: string | null })[];
+  players: readonly (EditablePlayer & {
+    userId: string | null;
+    disposition: string | null;
+    /** Champs de liste manquants, en toutes lettres ; `null` si la liste est saisie. */
+    missingLabel: string | null;
+  })[];
   accounts: readonly AccountOption[];
 }) {
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -54,7 +59,16 @@ export function PlayerList({
                   {player.army}
                   {player.detachment ? ` — ${player.detachment}` : ""}
                   {player.listName ? ` — ${player.listName}` : ""}
+                  {player.disposition ? ` — ${player.disposition}` : ""}
                 </div>
+                {player.missingLabel ? (
+                  <span
+                    className="badge text-bg-warning"
+                    title={`Manque : ${player.missingLabel}`}
+                  >
+                    Liste à compléter : {player.missingLabel}
+                  </span>
+                ) : null}
               </div>
 
               <div className="d-flex gap-2 flex-shrink-0 align-items-start">

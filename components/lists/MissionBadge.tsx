@@ -35,25 +35,43 @@ export function MissionBadge({
     );
   }
 
+  /*
+   * Un `<details>` natif : le volet se replie sans script, et le nom des deux missions
+   * reste lisible replié — c'est souvent tout ce que le joueur a besoin de revoir.
+   */
   return (
-    <div className="border rounded p-2">
-      <div className="text-uppercase text-body-secondary small mb-1">Mission primaire</div>
+    <details className="border rounded p-2" open>
+      <summary className="small">
+        <span className="text-uppercase text-body-secondary">Mission primaire</span>{" "}
+        <span className="fw-semibold">{ours.name}</span>
+        {theirs ? (
+          <span className="text-body-secondary"> · la sienne : {theirs.name}</span>
+        ) : null}
+      </summary>
 
-      <div className="fw-semibold">{ours.name}</div>
-      <div className="text-body-secondary small">
+      <div className="text-body-secondary small mt-2">
         {dispositionShortLabel(ourDisposition)} contre{" "}
         {dispositionShortLabel(opponentDisposition)}
       </div>
 
-      {ours.summary ? (
-        <MissionSummary summary={ours.summary} className="small mt-2 mb-0" />
-      ) : null}
+      <div className="mt-2">
+        <div className="small fw-semibold">Ta mission : {ours.name}</div>
+        {ours.summary ? (
+          <MissionSummary summary={ours.summary} className="small mt-1 mb-0" />
+        ) : null}
+      </div>
 
       {theirs ? (
-        <div className="small text-body-secondary mt-2">
-          Sa mission à lui : <span className="fw-semibold">{theirs.name}</span>
+        <div className="mt-2 pt-2 border-top">
+          <div className="small fw-semibold">Sa mission : {theirs.name}</div>
+          {theirs.summary ? (
+            <MissionSummary
+              summary={theirs.summary}
+              className="small text-body-secondary mt-1 mb-0"
+            />
+          ) : null}
         </div>
       ) : null}
-    </div>
+    </details>
   );
 }

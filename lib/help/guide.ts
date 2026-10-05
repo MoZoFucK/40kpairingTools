@@ -28,7 +28,7 @@ export const GUIDE_ROLES: readonly GuideRole[] = [
     role: "Joueur",
     lines: [
       "Saisit sa liste et sa disposition pour chaque tournoi.",
-      "Pose un estimé de 1 à 5 sur chaque match possible de la ronde.",
+      "Pose un estimé de 1 à 5 contre chaque joueur de chaque équipe adverse, avec un commentaire facultatif pour le coach.",
       "Consulte les listes adverses, la note du coach et l'historique.",
     ],
   },
@@ -59,7 +59,7 @@ export const GUIDE_CYCLE: readonly GuideStep[] = [
   {
     title: "Saisir listes et estimés",
     who: "Coach et joueurs",
-    body: "Chaque joueur renseigne sa liste et sa disposition, puis pose ses estimés. La saisie est possible dès la préparation ; le coach passe la ronde en « Estimés ouverts » pour signaler que c'est le moment. La matrice se remplit en direct sous ses yeux.",
+    body: "Chaque joueur renseigne sa liste et sa disposition, puis pose ses estimés équipe adverse par équipe adverse : le tirage des rondes n'est pas encore connu. Son tableau de bord lui dit ce qu'il reste à faire. La saisie est possible dès qu'une équipe adverse est saisie ; le coach passe la ronde en « Estimés ouverts » pour signaler que c'est le moment. La matrice se remplit en direct sous ses yeux.",
   },
   {
     title: "Verrouiller les estimés",

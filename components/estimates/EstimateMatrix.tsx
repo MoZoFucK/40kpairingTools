@@ -8,6 +8,7 @@ import {
   transpose,
   type Matrix,
 } from "@/lib/estimates/matrix";
+import { EstimateComments } from "./EstimateComments";
 
 /**
  * Matrice d'estimés — §20.
@@ -102,10 +103,15 @@ export function EstimateMatrix({ matrix }: { matrix: Matrix }) {
                         title={
                           value === null
                             ? "Pas encore saisi"
-                            : estimateLevel(value).label
+                            : `${estimateLevel(value).label}${cell?.comment ? ` — « ${cell.comment} »` : ""}`
                         }
                       >
                         {value ?? <span className="text-body-secondary fw-normal">—</span>}
+                        {cell?.comment ? (
+                          <sup className="ms-1" aria-label="avec commentaire">
+                            ✎
+                          </sup>
+                        ) : null}
                       </td>
                     );
                   })}
@@ -115,6 +121,8 @@ export function EstimateMatrix({ matrix }: { matrix: Matrix }) {
           </tbody>
         </table>
       </div>
+
+      <EstimateComments matrix={matrix} />
 
       {shown.ourPlayers.length === 0 || shown.opponentPlayers.length === 0 ? (
         <p className="text-body-secondary mt-3 mb-0">

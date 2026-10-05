@@ -21,6 +21,9 @@
  * Le compte joueur est rattaché au même joueur dans les trois tournois. Dans le tournoi
  * en saisie, sa liste n'a ni détachement, ni contenu, ni disposition : à lui de la remplir.
  *
+ * Le classeur date de la V10, où la disposition n'existait pas : chaque liste en reçoit
+ * une tirée au hasard, chaque équipe couvrant les cinq (scripts/lib/dispositions.mjs).
+ *
  * **Destructif.** Sans `--yes`, le script ne fait qu'afficher ce qu'il supprimerait. Avec,
  * il efface TOUS les tournois de la base et le référentiel de règles d'armée — rien de ce
  * qui n'est pas dans le classeur ne survit. Les comptes utilisateurs sont conservés.
@@ -31,6 +34,7 @@
  *   BETA_PLAYER_NAME   (défaut : AtadiloTho Jérome, tel qu'écrit dans le classeur)
  */
 import { createAdminApi, fail } from "./lib/admin-api.mjs";
+import { drawTeamDispositions } from "./lib/dispositions.mjs";
 import { readTeamWorkbook } from "./lib/team-workbook.mjs";
 
 const args = process.argv.slice(2);
@@ -148,6 +152,11 @@ async function createTournament(name, { blankPlayerList = false } = {}) {
     name: OUR_TEAM_NAME,
   });
 
+  const blankBeta = (player) => blankPlayerList && player.name === PLAYER_NAME;
+  const drawn = drawTeamDispositions(
+    workbook.ourPlayers.filter((player) => !blankBeta(player)).length,
+  );
+
   const created = await insertInOrder(
     "players",
     workbook.ourPlayers.map((player) => {
@@ -156,7 +165,8 @@ async function createTournament(name, { blankPlayerList = false } = {}) {
         team_id: ourTeam.id,
         name: player.name,
         army: player.army,
-        detachment: isBeta && blankPlayerList ? null : player.detachment,
+        detachment: blankBeta(player) ? null : player.detachment,
+        disposition: blankBeta(player) ? null : drawn.shift(),
         user_id: isBeta ? playerAccount.user_id : null,
       };
     }),
@@ -186,13 +196,15 @@ async function addRound({ tournament, idByLabel }, number, { skipEstimatesOf } =
     name: round.teamName || `Adversaire ronde ${number}`,
   });
 
+  const dispositions = drawTeamDispositions(round.players.length);
   const opponents = await insertInOrder(
     "players",
-    round.players.map((player) => ({
+    round.players.map((player, index) => ({
       team_id: team.id,
       name: player.name,
       army: player.army,
       detachment: player.detachment,
+      disposition: dispositions[index],
     })),
   );
   round.players.forEach((player, index) => {

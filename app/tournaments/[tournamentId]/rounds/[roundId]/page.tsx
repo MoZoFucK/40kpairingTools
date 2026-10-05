@@ -104,7 +104,7 @@ export default async function RoundPage({
             : null}
 
           <Link
-            href={`/tournaments/${tournamentId}/rounds/${roundId}/estimates`}
+            href={`/tournaments/${tournamentId}/estimates/${round.opponent_team_id}`}
             className="btn btn-outline-secondary btn-sm"
           >
             Mes estimés

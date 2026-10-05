@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   endingAt,
+  estimatesTrail,
   historyTrail,
   opponentsTrail,
   roundTrail,
@@ -25,6 +26,7 @@ describe("fils d'Ariane", () => {
       roundTrail(TOURNAMENT, "L3", ROUND, 2),
       historyTrail(TOURNAMENT, "L3"),
       opponentsTrail(TOURNAMENT, "L3"),
+      estimatesTrail(TOURNAMENT, "L3"),
     ];
 
     for (const trail of trails) {

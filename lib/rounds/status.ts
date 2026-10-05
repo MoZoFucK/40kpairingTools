@@ -94,6 +94,29 @@ export function canTransition(from: RoundStatus, to: RoundStatus): boolean {
   return allowedTransitions(from).includes(to);
 }
 
+/**
+ * Les estimés contre une équipe adverse sont-ils encore modifiables ?
+ *
+ * Un estimé vise un joueur adverse, pas une ronde : le joueur estime une équipe avant même
+ * que le tirage dise quand il la rencontrera. Reçoit les statuts de toutes les rondes qui
+ * opposent cette équipe à la nôtre — aucune ronde encore, la saisie est libre.
+ *
+ * Miroir exact de `estimates_open_for` (migration 0006), qui fait foi en base.
+ */
+export function areTeamEstimatesEditable(statuses: readonly RoundStatus[]): boolean {
+  return statuses.every(areEstimatesEditable);
+}
+
+/**
+ * Message affiché au joueur quand la saisie contre une équipe lui est fermée.
+ *
+ * Le statut le plus avancé l'emporte : c'est lui qui bloque.
+ */
+export function teamEstimatesClosedReason(statuses: readonly RoundStatus[]): string | null {
+  const blocking = statuses.find((status) => !areEstimatesEditable(status));
+  return blocking ? estimatesClosedReason(blocking) : null;
+}
+
 /** Message affiché au joueur quand la saisie lui est fermée (§37). */
 export function estimatesClosedReason(status: RoundStatus): string | null {
   if (areEstimatesEditable(status)) {

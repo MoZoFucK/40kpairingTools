@@ -78,7 +78,7 @@ export default async function RoundsPage({
                       {ROUND_STATUS_LABEL[round.status]}
                     </span>
                     <Link
-                      href={`/tournaments/${tournamentId}/rounds/${round.id}/estimates`}
+                      href={`/tournaments/${tournamentId}/estimates/${round.opponent_team_id}`}
                       className="btn btn-outline-secondary btn-sm"
                     >
                       Mes estimés

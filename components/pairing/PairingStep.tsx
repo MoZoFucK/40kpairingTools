@@ -78,6 +78,17 @@ function PlayerButton({
   );
 }
 
+/**
+ * Liste du défenseur, à droite de son nom dans l'en-tête : le coach choisit ses
+ * attaquants en ayant sous les yeux ce qu'ils affronteront.
+ */
+function DefenderList({ player }: { player: MatrixPlayer | undefined }) {
+  const summary = player ? listSummary(player) : "";
+  return summary ? (
+    <span className="fw-normal text-body-secondary small"> — {summary}</span>
+  ) : null;
+}
+
 export function PairingStep({
   state,
   players,
@@ -181,6 +192,7 @@ export function PairingStep({
                 <h3 className="h6">
                   {against === "THEM" ? "Nos attaquants" : "Leurs attaquants"} face à{" "}
                   {defender ? players.get(defender)?.name : "?"}
+                  <DefenderList player={defender ? players.get(defender) : undefined} />
                 </h3>
 
                 {already ? (
@@ -236,6 +248,7 @@ export function PairingStep({
                   {against === "THEM"
                     ? `Lequel ${players.get(defender ?? "")?.name ?? "l'adversaire"} retient-il ?`
                     : `Qui affronte ${players.get(defender ?? "")?.name ?? "notre défenseur"} ?`}
+                  <DefenderList player={defender ? players.get(defender) : undefined} />
                 </h3>
 
                 {retained ? (
