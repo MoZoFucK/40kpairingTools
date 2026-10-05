@@ -45,9 +45,22 @@ export function CoachNote({ notes }: { notes: string }) {
 export function ArmyCard({
   player,
   compact = false,
+  listInitiallyOpen = false,
+  footer,
 }: {
   player: ArmyCardData;
   compact?: boolean;
+  /**
+   * Liste détaillée dépliée d'emblée. Repliée par défaut : dans une grille d'équipe, une
+   * liste de vingt lignes étire toute la rangée et noie les fiches voisines. Le joueur qui
+   * a demandé lui-même à voir la liste la reçoit dépliée.
+   */
+  listInitiallyOpen?: boolean;
+  /**
+   * Actions rendues dans la carte, en pied. Placées après la carte, elles déborderaient :
+   * la carte occupe toute la hauteur de sa colonne pour aligner les fiches d'une rangée.
+   */
+  footer?: React.ReactNode;
 }) {
   const sections = player.listContent ? parseListSections(player.listContent) : [];
 
@@ -96,7 +109,11 @@ export function ArmyCard({
         ) : null}
 
         {!compact && sections.length > 0 ? (
-          <div className="mt-3 pt-3 border-top">
+          <details className="mt-3 pt-3 border-top" open={listInitiallyOpen}>
+            <summary className="small text-body-secondary mb-2">
+              Liste détaillée ·{" "}
+              {sections.reduce((total, section) => total + section.entries.length, 0)} lignes
+            </summary>
             {sections.map((section) => (
               <div key={section.title} className="mb-3">
                 <h4 className="text-uppercase text-body-secondary small mb-1">
@@ -109,7 +126,7 @@ export function ArmyCard({
                 </ul>
               </div>
             ))}
-          </div>
+          </details>
         ) : null}
 
         {!compact && sections.length === 0 ? (
@@ -118,6 +135,7 @@ export function ArmyCard({
           </p>
         ) : null}
       </div>
+      {footer ? <div className="card-footer bg-transparent">{footer}</div> : null}
     </article>
   );
 }

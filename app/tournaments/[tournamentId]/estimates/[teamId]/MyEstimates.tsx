@@ -138,7 +138,7 @@ function EstimateCard({
 
         {open ? (
           <div className="mb-3">
-            <ArmyCard player={opponent} />
+            <ArmyCard player={opponent} listInitiallyOpen />
           </div>
         ) : null}
 

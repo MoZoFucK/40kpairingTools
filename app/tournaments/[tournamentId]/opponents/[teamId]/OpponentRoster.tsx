@@ -48,40 +48,39 @@ export function OpponentRoster({
               </div>
             </div>
           ) : (
-            <div className="position-relative h-100">
-              <ArmyCard
-                player={{
-                  name: player.name,
-                  army: player.army,
-                  detachment: player.detachment,
-                  listName: player.listName,
-                  listContent: player.listContent,
-                  notes: player.notes,
-                  disposition: player.disposition,
-                  armyRule: rules[player.id]?.armyRule ?? null,
-                  detachmentRule: rules[player.id]?.detachmentRule ?? null,
-                }}
-              />
-
-              <div className="d-flex gap-2 p-3 pt-0">
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary btn-sm"
-                  onClick={() => setEditingId(player.id)}
-                >
-                  Modifier
-                </button>
-
-                <form action={deleteOpponentPlayer}>
-                  <input type="hidden" name="tournamentId" value={tournamentId} />
-                  <input type="hidden" name="teamId" value={teamId} />
-                  <input type="hidden" name="playerId" value={player.id} />
-                  <button type="submit" className="btn btn-outline-danger btn-sm">
-                    Supprimer
+            <ArmyCard
+              player={{
+                name: player.name,
+                army: player.army,
+                detachment: player.detachment,
+                listName: player.listName,
+                listContent: player.listContent,
+                notes: player.notes,
+                disposition: player.disposition,
+                armyRule: rules[player.id]?.armyRule ?? null,
+                detachmentRule: rules[player.id]?.detachmentRule ?? null,
+              }}
+              footer={
+                <div className="d-flex gap-2">
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary btn-sm"
+                    onClick={() => setEditingId(player.id)}
+                  >
+                    Modifier
                   </button>
-                </form>
-              </div>
-            </div>
+
+                  <form action={deleteOpponentPlayer}>
+                    <input type="hidden" name="tournamentId" value={tournamentId} />
+                    <input type="hidden" name="teamId" value={teamId} />
+                    <input type="hidden" name="playerId" value={player.id} />
+                    <button type="submit" className="btn btn-outline-danger btn-sm">
+                      Supprimer
+                    </button>
+                  </form>
+                </div>
+              }
+            />
           )}
         </div>
       ))}
