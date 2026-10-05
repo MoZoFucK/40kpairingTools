@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import {
   areEstimatesEditable,
   isPairingUnderway,
+  isTournamentClosed,
   ROUND_STATUS_LABEL,
 } from "@/lib/rounds/status";
 
@@ -58,6 +59,19 @@ export default async function DashboardPage({
   );
 
   const isCoach = canManageTeam(user.role);
+
+  /** Tournois dont toutes les rondes sont verrouillées : la liste n'y est plus modifiable. */
+  const closedTournaments = new Set(
+    (tournaments ?? [])
+      .filter((tournament) =>
+        isTournamentClosed(
+          (rounds ?? [])
+            .filter((round) => round.tournament_id === tournament.id)
+            .map((round) => round.status),
+        ),
+      )
+      .map((tournament) => tournament.id),
+  );
 
   /*
    * Rondes dont le coach a lui-même ouvert le pairing. Le tableau de bord ne choisit pas
@@ -132,16 +146,26 @@ export default async function DashboardPage({
         <section className="mb-4">
           <h2 className="h6 mb-2">Ma liste</h2>
           <div className="d-grid gap-2">
-            {[...playableTournaments].map((id) => (
-              <Link
-                key={id}
-                href={`/tournaments/${id}/my-list`}
-                className="btn btn-outline-primary text-start"
-              >
-                <span className="fw-semibold d-block">Saisir ma liste</span>
-                <span className="small">{tournamentName.get(id) ?? "Tournoi"}</span>
-              </Link>
-            ))}
+            {[...playableTournaments].map((id) => {
+              // Le coach peut encore corriger sa liste après coup ; le joueur la consulte.
+              const locked = closedTournaments.has(id) && !isCoach;
+
+              return (
+                <Link
+                  key={id}
+                  href={`/tournaments/${id}/my-list`}
+                  className={`btn text-start ${locked ? "btn-outline-secondary" : "btn-outline-primary"}`}
+                >
+                  <span className="fw-semibold d-block">
+                    {locked ? "Consulter ma liste" : "Saisir ma liste"}
+                  </span>
+                  <span className="small">
+                    {tournamentName.get(id) ?? "Tournoi"}
+                    {locked ? " · tournoi terminé" : ""}
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         </section>
       ) : null}

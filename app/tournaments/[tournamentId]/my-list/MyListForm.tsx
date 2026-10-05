@@ -16,12 +16,19 @@ export interface MyList {
   disposition: string | null;
 }
 
+/**
+ * `readOnly` : le tournoi est clos. Un `<fieldset disabled>` désactive d'un coup tous les
+ * champs et le bouton, nativement — la liste reste lisible, rien ne peut être soumis.
+ * Le serveur refuse de toute façon l'écriture : ce n'est qu'un confort d'affichage.
+ */
 export function MyListForm({
   tournamentId,
   list,
+  readOnly = false,
 }: {
   tournamentId: string;
   list: MyList;
+  readOnly?: boolean;
 }) {
   const [state, action] = useActionState(saveMyList, EMPTY);
 
@@ -29,7 +36,7 @@ export function MyListForm({
     <form action={action}>
       <input type="hidden" name="tournamentId" value={tournamentId} />
 
-      <div className="row g-3">
+      <fieldset disabled={readOnly} className="row g-3">
         <div className="col-12 col-md-6">
           <label htmlFor="my-army" className="form-label">
             Armée
@@ -93,14 +100,16 @@ export function MyListForm({
           </div>
         </div>
 
-        <div className="col-12">
-          <SubmitButton label="Enregistrer ma liste" />
-          <FormMessage
-            message={state.message}
-            tone={state.message?.startsWith("Ta liste") ? "success" : "danger"}
-          />
-        </div>
-      </div>
+        {readOnly ? null : (
+          <div className="col-12">
+            <SubmitButton label="Enregistrer ma liste" />
+            <FormMessage
+              message={state.message}
+              tone={state.message?.startsWith("Ta liste") ? "success" : "danger"}
+            />
+          </div>
+        )}
+      </fieldset>
     </form>
   );
 }

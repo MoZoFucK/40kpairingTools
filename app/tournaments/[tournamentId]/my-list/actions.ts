@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth/session";
+import { canManageTeam } from "@/lib/auth/roles";
+import { isTournamentClosed } from "@/lib/rounds/status";
 import { createClient } from "@/lib/supabase/server";
 import { isDisposition } from "@/lib/lists/dispositions";
 import { hasErrors, optionalText, validatePlayer } from "@/lib/validation/team";
@@ -24,7 +26,7 @@ export async function saveMyList(
   _state: FormState,
   formData: FormData,
 ): Promise<FormState> {
-  await requireUser();
+  const currentUser = await requireUser();
 
   const tournamentId = String(formData.get("tournamentId") ?? "");
   const supabase = await createClient();
@@ -58,6 +60,18 @@ export async function saveMyList(
       message:
         "Ton compte n'est rattaché à aucune fiche joueur de cette équipe. Ton coach doit faire le rattachement.",
     };
+  }
+
+  const { data: rounds } = await supabase
+    .from("rounds")
+    .select("status")
+    .eq("tournament_id", tournamentId);
+
+  if (
+    isTournamentClosed((rounds ?? []).map((round) => round.status)) &&
+    !canManageTeam(currentUser.role)
+  ) {
+    return { message: "Ce tournoi est terminé : ta liste n'est plus modifiable." };
   }
 
   const input = {

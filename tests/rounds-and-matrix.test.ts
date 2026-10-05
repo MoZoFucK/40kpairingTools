@@ -8,6 +8,7 @@ import {
   isPairingReachable,
   isPairingUnderway,
   isRoundLocked,
+  isTournamentClosed,
 } from "@/lib/rounds/status";
 import {
   buildMatrix,
@@ -89,6 +90,24 @@ describe("statut de ronde (§10.6, §18)", () => {
   /** Le raccourci du tableau de bord ne remonte que les rondes que le coach a lui-même ouvertes. */
   it("ne considère le pairing en cours que sur les deux statuts concernés", () => {
     expect(ALL_STATUSES.filter(isPairingUnderway)).toEqual(["ESTIMATES_LOCKED", "PAIRING"]);
+  });
+
+  /** Les listes d'un tournoi clos font partie de son historique : elles se figent. */
+  it("clôt un tournoi quand toutes ses rondes sont verrouillées", () => {
+    expect(isTournamentClosed(["LOCKED"])).toBe(true);
+    expect(isTournamentClosed(["LOCKED", "LOCKED", "LOCKED"])).toBe(true);
+  });
+
+  /** Une seule ronde encore ouverte suffit : le tournoi n'est pas fini. */
+  it("ne clôt pas un tournoi dont une ronde reste ouverte", () => {
+    for (const status of ALL_STATUSES.filter((s) => s !== "LOCKED")) {
+      expect(isTournamentClosed(["LOCKED", status]), status).toBe(false);
+    }
+  });
+
+  /** Sans ronde, le tournoi n'a pas commencé : le joueur doit pouvoir saisir sa liste. */
+  it("ne clôt pas un tournoi sans ronde", () => {
+    expect(isTournamentClosed([])).toBe(false);
   });
 
   /** Un raccourci qui mènerait à un écran inatteignable serait pire que pas de raccourci. */

@@ -30,6 +30,20 @@ export function isRoundLocked(status: RoundStatus): boolean {
 }
 
 /**
+ * Un tournoi est clos quand toutes ses rondes sont verrouillées.
+ *
+ * Les listes d'un tournoi clos font partie de son historique : les modifier réécrirait ce
+ * que la consultation des rondes passées affiche. Un tournoi sans ronde n'est pas clos —
+ * il n'a pas encore commencé.
+ *
+ * La base applique la même règle (migration 0012), pour qu'un appel direct à l'API ne
+ * puisse pas la contourner.
+ */
+export function isTournamentClosed(statuses: readonly RoundStatus[]): boolean {
+  return statuses.length > 0 && statuses.every(isRoundLocked);
+}
+
+/**
  * L'écran de pairing a-t-il quelque chose à montrer pour ce statut ?
  *
  * Tout sauf `PREPARATION`, où aucun effectif n'est encore figé : y conduire le coach

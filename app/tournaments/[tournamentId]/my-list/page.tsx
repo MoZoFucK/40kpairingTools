@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/session";
+import { canManageTeam } from "@/lib/auth/roles";
+import { isTournamentClosed } from "@/lib/rounds/status";
 import { createClient } from "@/lib/supabase/server";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { endingAt, tournamentTrail } from "@/lib/navigation/trail";
@@ -19,7 +21,7 @@ export default async function MyListPage({
   params: Promise<{ tournamentId: string }>;
 }) {
   const { tournamentId } = await params;
-  await requireUser();
+  const currentUser = await requireUser();
   const supabase = await createClient();
 
   const { data: tournament } = await supabase
@@ -43,14 +45,22 @@ export default async function MyListPage({
     .eq("kind", "OUR_TEAM")
     .maybeSingle();
 
-  const { data: me } = ourTeam
-    ? await supabase
-        .from("players")
-        .select("id, name, army, detachment, list_name, list_content, disposition")
-        .eq("team_id", ourTeam.id)
-        .eq("user_id", user?.id ?? "")
-        .maybeSingle()
-    : { data: null };
+  const [{ data: me }, { data: rounds }] = await Promise.all([
+    ourTeam
+      ? supabase
+          .from("players")
+          .select("id, name, army, detachment, list_name, list_content, disposition")
+          .eq("team_id", ourTeam.id)
+          .eq("user_id", user?.id ?? "")
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
+    supabase.from("rounds").select("status").eq("tournament_id", tournamentId),
+  ]);
+
+  // Le coach garde la main : c'est lui qui tient les fiches, y compris après coup.
+  const readOnly =
+    isTournamentClosed((rounds ?? []).map((round) => round.status)) &&
+    !canManageTeam(currentUser.role);
 
   return (
     <div className="container py-4" style={{ maxWidth: "44rem" }}>
@@ -66,7 +76,14 @@ export default async function MyListPage({
           <p className="text-body-secondary">
             Fiche : <span className="fw-semibold">{me.name}</span>
           </p>
+          {readOnly ? (
+            <div className="alert alert-secondary" role="status">
+              Ce tournoi est terminé : toutes ses rondes sont verrouillées. Ta liste fait
+              partie de son historique et n&apos;est plus modifiable.
+            </div>
+          ) : null}
           <MyListForm
+            readOnly={readOnly}
             tournamentId={tournamentId}
             list={{
               name: me.name,
