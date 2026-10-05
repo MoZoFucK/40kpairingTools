@@ -103,7 +103,7 @@ npm run import:xlsx -- "Retour L3 - 40k.xlsx"
 ```
 
 Charge le classeur de l'équipe : joueurs, équipes adverses rencontrées, listes, rondes
-avec leur scénario, matrice d'estimés, et le déroulé du pairing pour les rondes dont la
+matrice d'estimés, et le déroulé du pairing pour les rondes dont la
 feuille est complète.
 
 Le script est rejouable : il remplace le tournoi portant le même nom (`Retour L3` par
@@ -113,6 +113,29 @@ Il **transcrit** le classeur, il ne déduit rien : les matchs sont lus tels qu'i
 inscrits dans le bloc « Résumé Ronde », et une feuille incomplète voit son pairing ignoré
 plutôt que reconstitué. Le lecteur XLSX est écrit à la main dans `scripts/lib/xlsx.mjs`,
 sans dépendance.
+
+### Jeu de bêta-test
+
+```bash
+npm run beta:dataset            # affiche ce qui serait supprimé, ne modifie rien
+npm run beta:dataset -- --yes   # remplace toutes les données
+```
+
+Construit trois tournois **uniquement à partir du classeur**, un par moment du cycle de vie,
+pour qu'un coach et un joueur puissent tout tester :
+
+| Tournoi | Contenu | État |
+|---|---|---|
+| Retour L3 | rondes 1, 2 et 5 : estimés, pairing et matchs du classeur | verrouillé, consultation seule |
+| Bêta — pairing en cours | ronde 4 : estimés complets | pairing à jouer par le coach |
+| Bêta — saisie initiale | rondes 1 et 2 ; la troisième équipe reste à saisir | estimés ouverts |
+
+Le compte joueur est rattaché au même joueur dans les trois tournois. Dans le tournoi en
+saisie, sa liste et ses estimés sont vides ; ceux de ses coéquipiers sont remplis.
+
+**Destructif** : avec `--yes`, le script efface *tous* les tournois et le référentiel de
+règles d'armée. Les comptes sont conservés. Comptes et joueur visés se changent via
+`BETA_COACH_EMAIL`, `BETA_PLAYER_EMAIL` et `BETA_PLAYER_NAME`.
 
 ## Commandes
 
@@ -124,12 +147,17 @@ npm run test:e2e  # parcours de bout en bout Playwright
 npm run build     # build de production
 npm run seed      # jeu de données de démonstration
 npm run import:xlsx -- <fichier.xlsx>   # import du classeur de l'équipe
+npm run beta:dataset -- --yes           # jeu de bêta-test (destructif)
 ```
 
 ### Tests de bout en bout
 
 Ils tournent contre le projet Supabase réel, sur le jeu de données du seed : le cahier des
 charges exclut Docker, donc pas de base jetable locale.
+
+> **Ne pas les lancer contre une base ouverte à des bêta-testeurs.** Ils écrivent dans la
+> base qu'ils visent et supposent le tournoi de démonstration du seed. Il faut un projet
+> Supabase dédié — voir *Environnements Supabase*.
 
 ```bash
 npm run seed

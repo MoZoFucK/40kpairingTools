@@ -312,7 +312,6 @@ await insertOne("rounds", {
   tournament_id: tournament.id,
   number: 1,
   opponent_team_id: opponentTeam.id,
-  scenario: "Scénario de démonstration",
   status: "ESTIMATES_OPEN",
 });
 
