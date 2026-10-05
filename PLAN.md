@@ -31,10 +31,10 @@ teams(id, tournament_id, name, short_name, kind: OUR_TEAM|OPPONENT)
 players(id, team_id, user_id?, name, army, detachment?, list_name?)
 army_lists(id, player_id, army, detachment?, list_name?, raw_content?, raw_row jsonb)
 estimates(id, player_id, opponent_player_id, value 1..5, comment?)   -- unique(player_id, opponent_player_id)
-rounds(id, tournament_id, number, opponent_team_id, scenario?, status)
+rounds(id, tournament_id, number, opponent_team_id, status)   -- scénario retiré en V11 (0011)
 pairing_actions(id, round_id, sequence, type, player_id?, opponent_player_id?, metadata jsonb)
                                                                      -- unique(round_id, sequence)
-matches(id, round_id, our_player_id, opponent_player_id, table_number?, origin)
+matches(id, round_id, our_player_id, opponent_player_id, origin)  -- tables retirées en V11 (0011)
 profiles(user_id, role: PLAYER|COACH|ADMIN, team_id)
 ```
 

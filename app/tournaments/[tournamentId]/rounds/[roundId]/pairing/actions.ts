@@ -233,22 +233,3 @@ export async function undoLastAction(
   revalidatePath(`/tournaments/${tournamentId}/rounds/${roundId}/pairing`);
   return { ok: true };
 }
-
-export async function assignTable(formData: FormData): Promise<void> {
-  await requireCoach();
-
-  const tournamentId = String(formData.get("tournamentId") ?? "");
-  const roundId = String(formData.get("roundId") ?? "");
-  const matchId = String(formData.get("matchId") ?? "");
-  const raw = String(formData.get("tableNumber") ?? "").trim();
-  const tableNumber = raw.length > 0 ? Number(raw) : null;
-
-  if (tableNumber !== null && (!Number.isInteger(tableNumber) || tableNumber < 1)) {
-    return;
-  }
-
-  const supabase = await createClient();
-  await supabase.from("matches").update({ table_number: tableNumber }).eq("id", matchId);
-
-  revalidatePath(`/tournaments/${tournamentId}/rounds/${roundId}/pairing`);
-}

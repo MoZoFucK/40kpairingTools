@@ -22,7 +22,6 @@ export async function createRound(
   const tournamentId = String(formData.get("tournamentId") ?? "");
   const number = Number(formData.get("number") ?? 0);
   const opponentTeamId = String(formData.get("opponentTeamId") ?? "");
-  const scenario = String(formData.get("scenario") ?? "").trim();
 
   const errors: Record<string, string> = {};
   if (!Number.isInteger(number) || number < 1) {
@@ -42,7 +41,6 @@ export async function createRound(
       tournament_id: tournamentId,
       number,
       opponent_team_id: opponentTeamId,
-      scenario: scenario.length > 0 ? scenario : null,
     })
     .select("id")
     .single();

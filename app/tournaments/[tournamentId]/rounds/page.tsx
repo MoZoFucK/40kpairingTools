@@ -30,7 +30,7 @@ export default async function RoundsPage({
   const [{ data: rounds }, { data: opponentTeams }] = await Promise.all([
     supabase
       .from("rounds")
-      .select("id, number, scenario, status, opponent_team_id")
+      .select("id, number, status, opponent_team_id")
       .eq("tournament_id", tournamentId)
       .order("number", { ascending: true }),
     supabase
@@ -69,9 +69,6 @@ export default async function RoundsPage({
                     >
                       Ronde {round.number} — {teamName.get(round.opponent_team_id) ?? "?"}
                     </Link>
-                    {round.scenario ? (
-                      <div className="text-body-secondary small">{round.scenario}</div>
-                    ) : null}
                   </div>
 
                   <div className="d-flex align-items-center gap-2 flex-shrink-0">

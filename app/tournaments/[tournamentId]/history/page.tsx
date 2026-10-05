@@ -34,7 +34,7 @@ export default async function HistoryPage({
   const [{ data: rounds }, { data: teams }] = await Promise.all([
     supabase
       .from("rounds")
-      .select("id, number, scenario, status, opponent_team_id")
+      .select("id, number, status, opponent_team_id")
       .eq("tournament_id", tournamentId)
       .order("number", { ascending: true }),
     supabase
@@ -47,7 +47,7 @@ export default async function HistoryPage({
 
   const { data: matches } = await supabase
     .from("matches")
-    .select("round_id, our_player_id, opponent_player_id, table_number");
+    .select("round_id");
 
   const matchCount = new Map<string, number>();
   for (const match of matches ?? []) {
@@ -74,9 +74,6 @@ export default async function HistoryPage({
                   >
                     Ronde {round.number} — {teamName.get(round.opponent_team_id) ?? "?"}
                   </Link>
-                  {round.scenario ? (
-                    <div className="text-body-secondary small">{round.scenario}</div>
-                  ) : null}
                 </div>
 
                 <div className="d-flex align-items-center gap-2">

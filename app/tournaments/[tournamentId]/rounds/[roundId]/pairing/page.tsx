@@ -26,7 +26,7 @@ export default async function PairingPage({
 
   const { data: round } = await supabase
     .from("rounds")
-    .select("id, number, scenario, status, opponent_team_id, tournament_id")
+    .select("id, number, status, opponent_team_id, tournament_id")
     .eq("id", roundId)
     .maybeSingle();
 
@@ -77,7 +77,7 @@ export default async function PairingPage({
         .order("sequence", { ascending: true }),
       supabase
         .from("matches")
-        .select("id, our_player_id, opponent_player_id, origin, table_number")
+        .select("id, our_player_id, opponent_player_id, origin")
         .eq("round_id", roundId),
     ]);
 
@@ -105,9 +105,6 @@ export default async function PairingPage({
           <h1 className="h4 mb-1">
             Ronde {round.number} — {ourTeam.name} contre {opponentTeam?.name ?? "?"}
           </h1>
-          {round.scenario ? (
-            <p className="text-body-secondary mb-0">{round.scenario}</p>
-          ) : null}
         </div>
         <span className="badge text-bg-secondary">
           {ROUND_STATUS_LABEL[round.status]}
@@ -134,13 +131,10 @@ export default async function PairingPage({
       {matches && matches.length > 0 ? (
         <section className="mt-4">
           <FinalPairing
-            tournamentId={tournamentId}
-            roundId={roundId}
             matches={matches}
             ourPlayers={ourPlayers}
             opponentPlayers={opponentPlayers}
             teamSize={tournament.team_size}
-            readOnly={locked}
           />
         </section>
       ) : null}

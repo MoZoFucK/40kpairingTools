@@ -88,7 +88,6 @@ export type RoundRow = {
   tournament_id: string;
   number: number;
   opponent_team_id: string;
-  scenario: string | null;
   status: RoundStatus;
   created_at: string;
   updated_at: string;
@@ -129,7 +128,6 @@ export type MatchRow = {
   opponent_player_id: string;
   origin: MatchOrigin;
   step_index: number;
-  table_number: number | null;
   created_at: string;
 };
 
@@ -176,7 +174,7 @@ export interface Database {
         Row: RoundRow;
         Insert: Pick<RoundRow, "tournament_id" | "number" | "opponent_team_id"> &
           Partial<RoundRow>;
-        Update: Partial<Pick<RoundRow, "number" | "scenario" | "status" | "opponent_team_id">>;
+        Update: Partial<Pick<RoundRow, "number" | "status" | "opponent_team_id">>;
         Relationships: [];
       };
       estimates: {
@@ -203,7 +201,8 @@ export interface Database {
           "round_id" | "our_player_id" | "opponent_player_id" | "origin" | "step_index"
         > &
           Partial<MatchRow>;
-        Update: Partial<Pick<MatchRow, "table_number">>;
+        // Un match ne se modifie pas : il est supprimé puis recréé par le moteur.
+        Update: Record<string, never>;
         Relationships: [];
       };
       army_rules: {

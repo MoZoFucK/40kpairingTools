@@ -26,7 +26,7 @@ export default async function HistoryRoundPage({
 
   const { data: round } = await supabase
     .from("rounds")
-    .select("id, number, scenario, status, opponent_team_id, tournament_id")
+    .select("id, number, status, opponent_team_id, tournament_id")
     .eq("id", roundId)
     .maybeSingle();
 
@@ -68,7 +68,7 @@ export default async function HistoryRoundPage({
       .eq("tournament_id", tournamentId),
     supabase
       .from("matches")
-      .select("id, our_player_id, opponent_player_id, origin, table_number")
+      .select("id, our_player_id, opponent_player_id, origin")
       .eq("round_id", roundId),
     supabase
       .from("pairing_actions")
@@ -84,9 +84,7 @@ export default async function HistoryRoundPage({
   );
   const matrix = buildMatrix(ourPlayers, opponentPlayers, estimates ?? []);
 
-  const ordered = [...(matches ?? [])].sort(
-    (a, b) => (a.table_number ?? 99) - (b.table_number ?? 99),
-  );
+  const ordered = matches ?? [];
 
   return (
     <div className="container py-4">
@@ -103,9 +101,6 @@ export default async function HistoryRoundPage({
             Ronde {round.number} — {ourTeam?.name ?? "Notre équipe"} contre{" "}
             {opponentTeam?.name ?? "?"}
           </h1>
-          {round.scenario ? (
-            <p className="text-body-secondary mb-0">{round.scenario}</p>
-          ) : null}
         </div>
         <span className="badge text-bg-secondary">{ROUND_STATUS_LABEL[round.status]}</span>
       </div>
@@ -119,13 +114,7 @@ export default async function HistoryRoundPage({
         ) : (
           <ul className="list-group">
             {ordered.map((match) => (
-              <li key={match.id} className="list-group-item d-flex gap-3">
-                <span
-                  className="text-body-secondary flex-shrink-0"
-                  style={{ minWidth: "5rem" }}
-                >
-                  {match.table_number ? `Table ${match.table_number}` : "Table —"}
-                </span>
+              <li key={match.id} className="list-group-item">
                 <span>
                   <span className="fw-semibold">{byId.get(match.our_player_id)?.name}</span>{" "}
                   <span className="text-body-secondary">

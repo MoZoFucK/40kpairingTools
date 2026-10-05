@@ -21,7 +21,7 @@ export default async function RoundPage({
 
   const { data: round } = await supabase
     .from("rounds")
-    .select("id, number, scenario, status, opponent_team_id, tournament_id")
+    .select("id, number, status, opponent_team_id, tournament_id")
     .eq("id", roundId)
     .maybeSingle();
 
@@ -81,9 +81,6 @@ export default async function RoundPage({
             Ronde {round.number} — {ourTeam?.name ?? "Notre équipe"} contre{" "}
             {opponentTeam?.name ?? "?"}
           </h1>
-          {round.scenario ? (
-            <p className="text-body-secondary mb-0">{round.scenario}</p>
-          ) : null}
         </div>
 
         <div className="d-flex align-items-center gap-2 flex-wrap">

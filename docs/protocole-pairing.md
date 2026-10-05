@@ -114,10 +114,15 @@ courant du pool d'attaquants de la même étape.
    observable dans le classeur. Le coach l'a précisée : un dé départageait les deux équipes
    pour savoir laquelle choisissait la première, puis le choix alternait.
 
-   **Cette règle n'a plus cours en v11**, et n'est donc pas implémentée. La saisie du
-   numéro de table reste libre, sans automatisme — ce qui convient quelle que soit la règle
-   retenue à l'avenir. Ne pas coder l'ancienne règle « au cas où » : elle serait fausse dès
-   le premier tournoi.
+   **Cette règle n'a plus cours en v11**, et n'est donc pas implémentée. En v11, table et
+   déploiement ne se choisissent plus à l'issue du pairing : la saisie du numéro de table a
+   été retirée de l'application, avec la colonne `matches.table_number` (migration 0011).
+   Ne pas coder l'ancienne règle « au cas où » : elle serait fausse dès le premier tournoi.
+
+   Le **scénario** de ronde (« B - Supply Drop / Tipping Point ») a disparu pour la même
+   raison : en v11, la mission primaire découle du croisement des dispositions des deux
+   joueurs (`lib/lists/missions.ts`). La colonne `rounds.scenario` est supprimée par la même
+   migration, et les scripts d'import ignorent la colonne G du classeur.
 2. **Conformité WTC.** Le protocole ci-dessus est celui de l'équipe, reconstitué depuis des
    rondes jouées en 10e édition. Il doit être confronté au règlement officiel applicable
    (WTC 40K Event Pack 2025 v1.6) avant un tournoi réel.

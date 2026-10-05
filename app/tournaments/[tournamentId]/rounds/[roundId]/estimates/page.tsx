@@ -19,7 +19,7 @@ export default async function MyEstimatesPage({
 
   const { data: round } = await supabase
     .from("rounds")
-    .select("id, number, scenario, status, opponent_team_id, tournament_id")
+    .select("id, number, status, opponent_team_id, tournament_id")
     .eq("id", roundId)
     .maybeSingle();
 
@@ -123,7 +123,6 @@ export default async function MyEstimatesPage({
       <h1 className="h5 mb-1">Mes estimés — ronde {round.number}</h1>
       <p className="text-body-secondary small">
         {me.name} · {me.army}
-        {round.scenario ? ` · ${round.scenario}` : ""}
       </p>
 
       <MyEstimates

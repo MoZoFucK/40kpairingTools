@@ -57,19 +57,6 @@ export function NewRoundForm({
         <FieldError message={state.errors?.opponentTeamId} />
       </div>
 
-      <div className="mb-3">
-        <label htmlFor="round-scenario" className="form-label">
-          Scénario <span className="text-body-secondary">(optionnel)</span>
-        </label>
-        <input
-          id="round-scenario"
-          name="scenario"
-          type="text"
-          className="form-control"
-          placeholder="B - Supply Drop / Tipping Point"
-        />
-      </div>
-
       <SubmitButton label="Créer la ronde" />
       <FormMessage message={state.message} tone="danger" />
     </form>

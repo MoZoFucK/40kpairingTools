@@ -74,7 +74,6 @@ export interface Round {
   tournamentId: string;
   number: number;
   opponentTeamId: string;
-  scenario?: string;
   status: RoundStatus;
   createdAt: string;
   updatedAt: string;
