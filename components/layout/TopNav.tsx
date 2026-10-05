@@ -24,18 +24,22 @@ function initials(label: string): string {
  * souvent sur un téléphone posé au bord de la table, parfois sur un réseau de salle
  * capricieux — une barre qui ne dépend d'aucun script ne peut pas rester fermée.
  *
- * Deux onglets suffisent : au-delà, il faut un tournoi pour donner un sens à la
+ * Trois onglets suffisent : au-delà, il faut un tournoi pour donner un sens à la
  * destination. C'est le rôle du fil d'Ariane, pas de la barre.
  */
 export async function TopNav() {
   const user = await getCurrentUser();
 
-  const items: NavItem[] = user
-    ? [
-        { label: "Tableau de bord", href: "/dashboard" },
-        { label: "Tournois", href: "/tournaments", matchChildren: true },
-      ]
-    : [];
+  const items: NavItem[] = [
+    ...(user
+      ? [
+          { label: "Tableau de bord", href: "/dashboard" },
+          { label: "Tournois", href: "/tournaments", matchChildren: true },
+        ]
+      : []),
+    // Pour tout le monde, connecté ou non : c'est la première chose à lire.
+    { label: "Guide", href: "/guide" },
+  ];
 
   const name = user?.displayName ?? user?.email ?? "";
 

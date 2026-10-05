@@ -35,8 +35,8 @@ export default async function HomePage() {
               Se connecter
             </Link>
           )}
-          <Link href="/tournaments" className="btn btn-outline-secondary">
-            Voir les tournois
+          <Link href="/guide" className="btn btn-outline-secondary">
+            Lire le guide
           </Link>
         </div>
       </section>

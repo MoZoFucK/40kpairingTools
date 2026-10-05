@@ -10,7 +10,8 @@ import { createServerClient } from "@supabase/ssr";
  * Il ne remplace pas les gardes serveur de `lib/auth/session.ts`, qui restent la seule
  * protection qui fasse foi (§38).
  */
-const PUBLIC_PATHS = ["/", "/login", "/auth"];
+// Le guide est public : un bêta-testeur doit pouvoir le lire avant d'avoir un compte.
+const PUBLIC_PATHS = ["/", "/login", "/auth", "/guide"];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });

@@ -239,6 +239,52 @@
   width: 1.75rem;
 }
 
+/*
+ * Aide contextuelle repliable. Le déclencheur reste discret, à droite : il doit se
+ * trouver sans attirer l'œil de celui qui n'en a pas besoin.
+ */
+.page-help {
+  font-size: 0.9rem;
+}
+
+.page-help-toggle {
+  border: 1px solid var(--gd-line);
+  border-radius: 999px;
+  color: var(--gd-bone-dim);
+  cursor: pointer;
+  display: inline-block;
+  list-style: none;
+  padding: 0.15rem 0.75rem;
+}
+
+/* Masque le triangle natif : le bouton porte déjà son propre signe. */
+.page-help-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.page-help-toggle:hover,
+.page-help[open] .page-help-toggle {
+  border-color: var(--gd-brass);
+  color: var(--gd-bone-bright);
+}
+
+.page-help-body {
+  background-color: var(--gd-surface);
+  border: 1px solid var(--gd-line);
+  border-left: 3px solid var(--gd-brass);
+  border-radius: 0.375rem;
+  margin-top: 0.5rem;
+  max-width: 48rem;
+  padding: 0.75rem 1rem;
+}
+
+.page-help-label {
+  color: var(--gd-bone-dim);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .app-breadcrumb {
   --bs-breadcrumb-divider-color: var(--gd-bone-dim);
   --bs-breadcrumb-item-active-color: var(--gd-bone-bright);

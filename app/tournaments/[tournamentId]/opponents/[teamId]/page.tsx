@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ruleKey } from "@/lib/validation/army";
 import { ArmyCard } from "@/components/opponents/ArmyCard";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { PageHelp } from "@/components/help/PageHelp";
 import { endingAt, opponentsTrail } from "@/lib/navigation/trail";
 import { OpponentPlayerForm } from "./OpponentPlayerForm";
 import { OpponentRoster } from "./OpponentRoster";
@@ -98,6 +99,7 @@ export default async function OpponentTeamPage({
           team.name,
         )}
       />
+      <PageHelp page="opponentTeam" />
 
       <div className="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
         <h1 className="h4 mb-0">{team.name}</h1>

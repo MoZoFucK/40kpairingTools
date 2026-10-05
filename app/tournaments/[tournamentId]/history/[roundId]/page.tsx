@@ -6,6 +6,7 @@ import { estimateLevel } from "@/lib/estimates/scale";
 import { ROUND_STATUS_LABEL } from "@/lib/rounds/status";
 import { describeStoredAction } from "@/lib/pairing/journal";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { PageHelp } from "@/components/help/PageHelp";
 import { endingAt, historyTrail } from "@/lib/navigation/trail";
 import type { StoredPairingAction } from "@/lib/pairing/persistence";
 
@@ -94,6 +95,7 @@ export default async function HistoryRoundPage({
           `Ronde ${round.number}`,
         )}
       />
+      <PageHelp page="historyRound" />
 
       <div className="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
         <div>

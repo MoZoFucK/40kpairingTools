@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { hasAtLeast } from "@/lib/auth/roles";
@@ -18,8 +19,13 @@ export interface CurrentUser {
  * Le rôle vient de la table `profiles`, jamais d'une donnée transmise par le navigateur
  * (§9). `getUser()` est utilisé plutôt que `getSession()` : il fait valider le jeton par
  * Supabase au lieu de faire confiance au cookie.
+ *
+ * Mis en cache pour la durée d'une requête (`cache` de React) : la barre de navigation,
+ * la page et son aide contextuelle la demandent toutes, et chaque appel coûte deux
+ * allers-retours vers Supabase. Le cache ne survit pas à la requête — une déconnexion
+ * ou un changement de rôle est vu dès la suivante.
  */
-export async function getCurrentUser(): Promise<CurrentUser | null> {
+export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   const supabase = await createClient();
 
   const {
@@ -46,7 +52,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     role: profile.role,
     displayName: profile.display_name,
   };
-}
+});
 
 /** Exige une session valide, sinon redirige vers la page de connexion. */
 export async function requireUser(): Promise<CurrentUser> {

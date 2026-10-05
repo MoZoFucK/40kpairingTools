@@ -7,6 +7,7 @@ import type { MatrixPlayer } from "@/lib/estimates/matrix";
 import { ROUND_STATUS_LABEL, allowedTransitions } from "@/lib/rounds/status";
 import { LiveMatrix } from "@/components/estimates/LiveMatrix";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { PageHelp } from "@/components/help/PageHelp";
 import { endingAt, roundsTrail } from "@/lib/navigation/trail";
 import { changeRoundStatus } from "../actions";
 
@@ -74,6 +75,7 @@ export default async function RoundPage({
           `Ronde ${round.number}`,
         )}
       />
+      <PageHelp page="round" />
 
       <div className="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
         <div>

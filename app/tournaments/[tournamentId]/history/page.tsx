@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { PageHelp } from "@/components/help/PageHelp";
 import { endingAt, tournamentTrail } from "@/lib/navigation/trail";
 import { ROUND_STATUS_LABEL } from "@/lib/rounds/status";
 
@@ -59,6 +60,7 @@ export default async function HistoryPage({
       <Breadcrumb
         items={endingAt(tournamentTrail(tournamentId, tournament.name), "Historique")}
       />
+      <PageHelp page="history" />
 
       <h1 className="h4 mb-4">Historique</h1>
 

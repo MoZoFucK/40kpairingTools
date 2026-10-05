@@ -4,6 +4,7 @@ import { canManageTeam } from "@/lib/auth/roles";
 import { isTournamentClosed } from "@/lib/rounds/status";
 import { createClient } from "@/lib/supabase/server";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { PageHelp } from "@/components/help/PageHelp";
 import { endingAt, tournamentTrail } from "@/lib/navigation/trail";
 import { MyListForm } from "./MyListForm";
 
@@ -67,6 +68,7 @@ export default async function MyListPage({
       <Breadcrumb
         items={endingAt(tournamentTrail(tournamentId, tournament.name), "Ma liste")}
       />
+      <PageHelp page="myList" />
 
       <h1 className="h5 mb-1">Ma liste</h1>
       <p className="text-body-secondary small">{tournament.name}</p>

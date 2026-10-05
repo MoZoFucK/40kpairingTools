@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { areEstimatesEditable, estimatesClosedReason } from "@/lib/rounds/status";
 import { ruleKey } from "@/lib/validation/army";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { PageHelp } from "@/components/help/PageHelp";
 import { endingAt, roundTrail } from "@/lib/navigation/trail";
 import { MyEstimates, type EstimateTarget } from "./MyEstimates";
 import type { EstimateValue } from "@/types/domain";
@@ -119,6 +120,7 @@ export default async function MyEstimatesPage({
           "Mes estimés",
         )}
       />
+      <PageHelp page="estimates" />
 
       <h1 className="h5 mb-1">Mes estimés — ronde {round.number}</h1>
       <p className="text-body-secondary small">

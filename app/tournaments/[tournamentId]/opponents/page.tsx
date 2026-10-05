@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth/session";
 import { canManageTeam } from "@/lib/auth/roles";
 import { createClient } from "@/lib/supabase/server";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { PageHelp } from "@/components/help/PageHelp";
 import { endingAt, tournamentTrail } from "@/lib/navigation/trail";
 import { NewOpponentTeamForm } from "./NewOpponentTeamForm";
 
@@ -40,6 +41,7 @@ export default async function OpponentsPage({
       <Breadcrumb
         items={endingAt(tournamentTrail(tournamentId, tournament.name), "Équipes adverses")}
       />
+      <PageHelp page="opponents" />
 
       <h1 className="h4 mb-4">Équipes adverses</h1>
 

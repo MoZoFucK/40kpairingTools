@@ -5,6 +5,7 @@ import { canManageRounds } from "@/lib/auth/roles";
 import { createClient } from "@/lib/supabase/server";
 import { isPairingReachable, ROUND_STATUS_LABEL } from "@/lib/rounds/status";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { PageHelp } from "@/components/help/PageHelp";
 import { endingAt, tournamentTrail } from "@/lib/navigation/trail";
 import { NewRoundForm } from "./NewRoundForm";
 
@@ -50,6 +51,7 @@ export default async function RoundsPage({
       <Breadcrumb
         items={endingAt(tournamentTrail(tournamentId, tournament.name), "Rondes")}
       />
+      <PageHelp page="rounds" />
 
       <h1 className="h4 mb-4">Rondes</h1>
 

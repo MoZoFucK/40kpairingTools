@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth/session";
 import { canManageTeam, ROLE_LABEL } from "@/lib/auth/roles";
+import { PageHelp } from "@/components/help/PageHelp";
 import { createClient } from "@/lib/supabase/server";
 import {
   areEstimatesEditable,
@@ -84,7 +85,8 @@ export default async function DashboardPage({
 
   return (
     <div className="container py-5" style={{ maxWidth: "44rem" }}>
-      <h1 className="h4 mb-4">Tableau de bord</h1>
+      <h1 className="h4 mb-2">Tableau de bord</h1>
+      <PageHelp page="dashboard" />
 
       {refus === "role" ? (
         <div className="alert alert-warning" role="alert">

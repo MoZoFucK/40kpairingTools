@@ -5,6 +5,7 @@ import { canManageTeam } from "@/lib/auth/roles";
 import { createClient } from "@/lib/supabase/server";
 import { teamSizeNotice } from "@/lib/validation/team";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { PageHelp } from "@/components/help/PageHelp";
 import { endingAt, tournamentsTrail } from "@/lib/navigation/trail";
 import { TournamentForm } from "../TournamentForm";
 import { TeamForm } from "./TeamForm";
@@ -71,6 +72,7 @@ export default async function TournamentPage({
   return (
     <div className="container py-4">
       <Breadcrumb items={endingAt(tournamentsTrail(), tournament.name)} />
+      <PageHelp page="tournament" />
 
       <div className="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
         <h1 className="h4 mb-0">{tournament.name}</h1>

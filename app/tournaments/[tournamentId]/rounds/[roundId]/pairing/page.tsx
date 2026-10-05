@@ -6,6 +6,7 @@ import { SIX_VS_SIX } from "@/lib/pairing/protocol";
 import { isRoundLocked, ROUND_STATUS_LABEL } from "@/lib/rounds/status";
 import { PairingBoard, type StoredAction } from "@/components/pairing/PairingBoard";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { PageHelp } from "@/components/help/PageHelp";
 import { endingAt, roundTrail } from "@/lib/navigation/trail";
 import { FinalPairing } from "./FinalPairing";
 import type { MatrixPlayer } from "@/lib/estimates/matrix";
@@ -99,6 +100,7 @@ export default async function PairingPage({
           "Pairing",
         )}
       />
+      <PageHelp page="pairing" />
 
       <div className="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
         <div>
