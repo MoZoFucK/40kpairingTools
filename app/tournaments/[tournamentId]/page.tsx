@@ -13,6 +13,7 @@ import { TournamentForm } from "../TournamentForm";
 import { TeamForm } from "./TeamForm";
 import { PlayerForm } from "./PlayerForm";
 import { PlayerList } from "./PlayerList";
+import { ArmyCard } from "@/components/opponents/ArmyCard";
 
 export default async function TournamentPage({
   params,
@@ -44,7 +45,7 @@ export default async function TournamentPage({
   const { data: players } = ourTeam
     ? await supabase
         .from("players")
-        .select("id, name, army, detachment, list_name, user_id, disposition")
+        .select("id, name, army, detachment, list_name, list_content, user_id, disposition")
         .eq("team_id", ourTeam.id)
         .order("created_at", { ascending: true })
     : { data: [] };
@@ -55,7 +56,9 @@ export default async function TournamentPage({
     army: player.army,
     detachment: player.detachment,
     listName: player.list_name,
+    listContent: player.list_content,
     userId: player.user_id,
+    rawDisposition: player.disposition,
     disposition: dispositionShortLabel(player.disposition),
     missing: missingListFields(player),
   }));
@@ -210,21 +213,49 @@ export default async function TournamentPage({
                 accounts={accounts}
               />
             ) : (
-              <ul className="list-group list-group-flush">
-                {roster.map((player) => (
-                  <li key={player.id} className="list-group-item px-0">
-                    <span className="fw-semibold">{player.name}</span>{" "}
-                    <span className="text-body-secondary small">
-                      {player.army}
-                      {player.detachment ? ` — ${player.detachment}` : ""}
-                      {player.disposition ? ` — ${player.disposition}` : ""}
-                    </span>
-                    {player.missing.length > 0 ? (
-                      <span className="badge text-bg-warning ms-2">Liste à compléter</span>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
+              /*
+               * Le joueur voit les listes de ses coéquipiers, avec la même fiche que pour
+               * les adversaires : connaître les forces de l'équipe aide à préparer ses
+               * estimés. Lecture seule — chacun ne modifie que la sienne (« Ma liste »).
+               */
+              <div className="row row-cols-1 row-cols-md-2 g-3">
+                {roster.map((player) => {
+                  const isMe = player.userId === user.id;
+                  return (
+                    <div key={player.id} className="col">
+                      <ArmyCard
+                        player={{
+                          name: isMe ? `${player.name} (toi)` : player.name,
+                          army: player.army,
+                          detachment: player.detachment,
+                          listName: player.listName,
+                          listContent: player.listContent,
+                          disposition: player.rawDisposition,
+                        }}
+                        footer={
+                          isMe || player.missing.length > 0 ? (
+                            <div className="d-flex flex-wrap gap-2 align-items-center">
+                              {player.missing.length > 0 ? (
+                                <span className="badge text-bg-warning">
+                                  Liste à compléter : {describeMissing(player.missing)}
+                                </span>
+                              ) : null}
+                              {isMe ? (
+                                <Link
+                                  href={`/tournaments/${tournamentId}/my-list`}
+                                  className="btn btn-outline-primary btn-sm ms-auto"
+                                >
+                                  Modifier ma liste
+                                </Link>
+                              ) : null}
+                            </div>
+                          ) : undefined
+                        }
+                      />
+                    </div>
+                  );
+                })}
+              </div>
             )}
 
             {isCoach ? (

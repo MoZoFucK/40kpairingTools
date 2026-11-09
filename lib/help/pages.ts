@@ -71,7 +71,8 @@ export const PAGE_HELP: Readonly<Record<HelpPage, PageHelpContent>> = {
       "Un joueur dont la liste manque d'un détachement ou d'une disposition est signalé « Liste à compléter ». Sans compte rattaché, c'est à toi de la saisir.",
     ],
     player: [
-      "Tu vois ton équipe. Seul le coach la modifie.",
+      "Tu vois ton équipe et la liste de chacun de tes coéquipiers : déplie « Liste détaillée » sur sa fiche.",
+      "Seul le coach modifie l'équipe. Chacun modifie sa propre liste avec « Ma liste ».",
       "« Mes estimés » et « Ma liste » mènent à ta propre saisie pour ce tournoi.",
     ],
     next: "Saisis ensuite les équipes adverses, puis crée les rondes.",
