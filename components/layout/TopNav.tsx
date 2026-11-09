@@ -2,6 +2,8 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth/session";
 import { ROLE_LABEL } from "@/lib/auth/roles";
 import { signOut } from "@/app/login/actions";
+import { stopImpersonation } from "@/app/admin/actions";
+import { isSuperAdminEmail, readImpersonator } from "@/lib/auth/superAdmin";
 import { NavLinks, type NavItem } from "./NavLinks";
 import { SignInLink } from "./SignInLink";
 
@@ -29,6 +31,7 @@ function initials(label: string): string {
  */
 export async function TopNav() {
   const user = await getCurrentUser();
+  const impersonating = user ? (await readImpersonator()) !== null : false;
 
   const items: NavItem[] = [
     ...(user
@@ -39,59 +42,75 @@ export async function TopNav() {
       : []),
     // Pour tout le monde, connecté ou non : c'est la première chose à lire.
     { label: "Guide", href: "/guide" },
+    ...(isSuperAdminEmail(user?.email) ? [{ label: "Admin", href: "/admin" }] : []),
   ];
 
   const name = user?.displayName ?? user?.email ?? "";
 
   return (
-    <header className="app-navbar sticky-top">
-      <div className="container-fluid d-flex flex-wrap align-items-center gap-3 py-2">
-        <Link
-          href={user ? "/dashboard" : "/"}
-          className="app-brand text-decoration-none d-flex align-items-center gap-2"
-        >
-          <span className="app-brand-mark" aria-hidden="true">
-            ✠
+    <>
+      {impersonating ? (
+        <div className="alert alert-warning rounded-0 mb-0 py-2 d-flex flex-wrap align-items-center justify-content-center gap-3">
+          <span className="small">
+            Tu navigues en tant que <strong>{user?.email}</strong>. Tout ce que tu fais est
+            enregistré à son nom.
           </span>
-          <span>40K Pairing</span>
-        </Link>
+          <form action={stopImpersonation}>
+            <button type="submit" className="btn btn-warning btn-sm">
+              Revenir à mon compte
+            </button>
+          </form>
+        </div>
+      ) : null}
+      <header className="app-navbar sticky-top">
+        <div className="container-fluid d-flex flex-wrap align-items-center gap-3 py-2">
+          <Link
+            href={user ? "/dashboard" : "/"}
+            className="app-brand text-decoration-none d-flex align-items-center gap-2"
+          >
+            <span className="app-brand-mark" aria-hidden="true">
+              ✠
+            </span>
+            <span>40K Pairing</span>
+          </Link>
 
-        {items.length > 0 ? (
-          <nav aria-label="navigation principale">
-            <NavLinks items={items} />
-          </nav>
-        ) : null}
+          {items.length > 0 ? (
+            <nav aria-label="navigation principale">
+              <NavLinks items={items} />
+            </nav>
+          ) : null}
 
-        <div className="ms-auto d-flex align-items-center gap-2">
-          {user ? (
-            <>
-              <span className="app-user-chip d-flex align-items-center gap-2 ps-1 pe-3 py-1">
-                <span className="app-avatar" aria-hidden="true">
-                  {initials(name)}
-                </span>
-                <span className="d-flex flex-column lh-1">
-                  <span className="small fw-semibold text-body-emphasis">{name}</span>
-                  <span className="text-body-secondary" style={{ fontSize: "0.7rem" }}>
-                    {ROLE_LABEL[user.role]}
+          <div className="ms-auto d-flex align-items-center gap-2">
+            {user ? (
+              <>
+                <span className="app-user-chip d-flex align-items-center gap-2 ps-1 pe-3 py-1">
+                  <span className="app-avatar" aria-hidden="true">
+                    {initials(name)}
+                  </span>
+                  <span className="d-flex flex-column lh-1">
+                    <span className="small fw-semibold text-body-emphasis">{name}</span>
+                    <span className="text-body-secondary" style={{ fontSize: "0.7rem" }}>
+                      {ROLE_LABEL[user.role]}
+                    </span>
                   </span>
                 </span>
-              </span>
 
-              <Link href="/compte/mot-de-passe" className="btn btn-outline-secondary btn-sm">
-                Mot de passe
-              </Link>
+                <Link href="/compte/mot-de-passe" className="btn btn-outline-secondary btn-sm">
+                  Mot de passe
+                </Link>
 
-              <form action={signOut}>
-                <button type="submit" className="btn btn-outline-secondary btn-sm">
-                  Se déconnecter
-                </button>
-              </form>
-            </>
-          ) : (
-            <SignInLink />
-          )}
+                <form action={signOut}>
+                  <button type="submit" className="btn btn-outline-secondary btn-sm">
+                    Se déconnecter
+                  </button>
+                </form>
+              </>
+            ) : (
+              <SignInLink />
+            )}
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+    </>
   );
 }

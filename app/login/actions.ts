@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { forgetImpersonator, readImpersonator } from "@/lib/auth/superAdmin";
 
 export interface AuthFormState {
   error?: string;
@@ -79,7 +80,12 @@ export async function requestPasswordReset(
 
 export async function signOut(): Promise<void> {
   const supabase = await createClient();
-  await supabase.auth.signOut();
+
+  // Sous un autre compte, on ne ferme que la session de ce navigateur : la portée par
+  // défaut (globale) déconnecterait le vrai titulaire de tous ses appareils.
+  const impersonating = (await readImpersonator()) !== null;
+  await supabase.auth.signOut(impersonating ? { scope: "local" } : undefined);
+  await forgetImpersonator();
 
   revalidatePath("/", "layout");
   redirect("/login");
