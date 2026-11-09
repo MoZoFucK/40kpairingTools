@@ -34,8 +34,20 @@ export async function requireSuperAdmin(): Promise<CurrentUser> {
   return user;
 }
 
+/**
+ * La clé secrète est facultative en production : sans elle, les fonctions super admin
+ * sont simplement indisponibles. Les lectures qui servent à toutes les pages (barre du
+ * haut, déconnexion) ne doivent jamais lever d'erreur pour autant.
+ */
+export function isSuperAdminConfigured(): boolean {
+  return Boolean(process.env.SUPABASE_SECRET_KEY);
+}
+
 /** Identifiant du super admin qui navigue sous un autre compte, ou `null`. */
 export async function readImpersonator(): Promise<string | null> {
+  if (!isSuperAdminConfigured()) {
+    return null;
+  }
   const store = await cookies();
   return verifyImpersonator(store.get(IMPERSONATOR_COOKIE)?.value, supabaseSecretKey());
 }

@@ -1,4 +1,4 @@
-import { requireSuperAdmin } from "@/lib/auth/superAdmin";
+import { isSuperAdminConfigured, requireSuperAdmin } from "@/lib/auth/superAdmin";
 import { ROLE_LABEL } from "@/lib/auth/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { impersonate } from "./actions";
@@ -23,6 +23,20 @@ export default async function AdminPage({
 }) {
   const me = await requireSuperAdmin();
   const { erreur } = await searchParams;
+
+  if (!isSuperAdminConfigured()) {
+    return (
+      <div className="container py-4">
+        <h1 className="h4 mb-3">Admin</h1>
+        <div className="alert alert-warning" role="alert">
+          La variable d&apos;environnement <code>SUPABASE_SECRET_KEY</code> n&apos;est pas définie
+          sur ce déploiement. Ajoute-la dans Vercel (Settings &gt; Environment Variables), puis
+          redéploie.
+        </div>
+      </div>
+    );
+  }
+
   const admin = createAdminClient();
 
   const [usersResult, profilesResult, playersResult, teamsResult, tournamentsResult] =
