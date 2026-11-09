@@ -77,6 +77,10 @@ export async function TopNav() {
                 </span>
               </span>
 
+              <Link href="/compte/mot-de-passe" className="btn btn-outline-secondary btn-sm">
+                Mot de passe
+              </Link>
+
               <form action={signOut}>
                 <button type="submit" className="btn btn-outline-secondary btn-sm">
                   Se déconnecter

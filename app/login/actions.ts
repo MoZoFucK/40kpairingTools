@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
@@ -57,8 +58,17 @@ export async function requestPasswordReset(
     return { error: "Renseigne ton adresse e-mail." };
   }
 
+  // Le lien du mail ouvre une session puis mène à la page de choix du mot de passe.
+  // Cette URL doit figurer dans les « Redirect URLs » du projet Supabase.
+  const requestHeaders = await headers();
+  const origin =
+    requestHeaders.get("origin") ??
+    `${requestHeaders.get("x-forwarded-proto") ?? "https"}://${requestHeaders.get("host")}`;
+
   const supabase = await createClient();
-  await supabase.auth.resetPasswordForEmail(email);
+  await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${origin}/auth/confirm?suite=/compte/mot-de-passe`,
+  });
 
   // Réponse identique que le compte existe ou non, pour ne pas révéler sa présence.
   return {
