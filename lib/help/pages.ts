@@ -25,7 +25,8 @@ export type HelpPage =
   | "pairing"
   | "history"
   | "historyRound"
-  | "myList";
+  | "myList"
+  | "teamLists";
 
 export interface PageHelpContent {
   /** À quoi sert la page, en une phrase. */
@@ -69,6 +70,7 @@ export const PAGE_HELP: Readonly<Record<HelpPage, PageHelpContent>> = {
       "Rattache chaque joueur à son compte avec la liste « Aucun compte » : c'est ce qui lui permet de saisir ses estimés et sa liste.",
       "Le compteur indique si l'effectif atteint la taille du tournoi : le pairing ne démarre pas sans équipe complète.",
       "Un joueur dont la liste manque d'un détachement ou d'une disposition est signalé « Liste à compléter ». Sans compte rattaché, c'est à toi de la saisir.",
+      "« Listes de l'équipe » affiche les listes complètes de tous tes joueurs, en lecture.",
     ],
     player: [
       "Tu vois ton équipe et la liste de chacun de tes coéquipiers : déplie « Liste détaillée » sur sa fiche.",
@@ -181,6 +183,15 @@ export const PAGE_HELP: Readonly<Record<HelpPage, PageHelpContent>> = {
     ],
     coach: [
       "Cette page est celle de ta propre fiche. Tu peux la modifier même une fois le tournoi terminé.",
+    ],
+  },
+
+  teamLists: {
+    purpose: "Les listes de tous les joueurs de ton équipe, sur une seule page.",
+    coach: [
+      "Chaque fiche reprend l'armée, le détachement, la disposition et les règles partagées. Déplie « Liste détaillée » pour lire la liste.",
+      "Rien n'est modifiable ici : les fiches se corrigent depuis la page du tournoi.",
+      "Une fiche « Liste à compléter » manque d'un détachement ou d'une disposition. « Aucun compte rattaché » signale que c'est à toi de la saisir.",
     ],
   },
 };

@@ -38,7 +38,7 @@ const FORBIDDEN = [
 const PAGES = Object.keys(PAGE_HELP) as HelpPage[];
 
 /** Pages que le joueur n'atteint pas : l'aide n'a rien à lui y dire. */
-const COACH_ONLY: readonly HelpPage[] = ["pairing"];
+const COACH_ONLY: readonly HelpPage[] = ["pairing", "teamLists"];
 
 function allTexts(): string[] {
   const pageTexts = PAGES.flatMap((page) => {

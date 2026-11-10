@@ -112,6 +112,14 @@ export default async function TournamentPage({
             </Link>
           </>
         ) : null}
+        {isCoach && ourTeam ? (
+          <Link
+            href={`/tournaments/${tournamentId}/team-lists`}
+            className="btn btn-outline-primary btn-sm"
+          >
+            Listes de l&apos;équipe
+          </Link>
+        ) : null}
         <Link
           href={`/tournaments/${tournamentId}/rounds`}
           className="btn btn-outline-primary btn-sm"
