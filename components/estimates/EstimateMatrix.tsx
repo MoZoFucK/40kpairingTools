@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ESTIMATE_SCALE, estimateLevel } from "@/lib/estimates/scale";
+import { estimateLevel, estimateScale } from "@/lib/estimates/scale";
 import {
   completionByPlayer,
   getCell,
@@ -38,9 +38,9 @@ export function EstimateMatrix({ matrix }: { matrix: Matrix }) {
 
         <div className="d-flex gap-2 flex-wrap small align-items-center">
           <span className="text-body-secondary">Légende</span>
-          {ESTIMATE_SCALE.map((level) => (
+          {estimateScale(matrix.scale).map((level) => (
             <span key={level.value} className={`badge ${level.className}`}>
-              {level.value} · {level.label}
+              {level.short} · {level.label}
             </span>
           ))}
         </div>
@@ -98,15 +98,19 @@ export function EstimateMatrix({ matrix }: { matrix: Matrix }) {
                       <td
                         key={columnPlayer.id}
                         className={`text-center fw-semibold ${
-                          value === null ? "" : estimateLevel(value).className
+                          value === null ? "" : estimateLevel(value, shown.scale).className
                         }`}
                         title={
                           value === null
                             ? "Pas encore saisi"
-                            : `${estimateLevel(value).label}${cell?.comment ? ` — « ${cell.comment} »` : ""}`
+                            : `${estimateLevel(value, shown.scale).label}${cell?.comment ? ` — « ${cell.comment} »` : ""}`
                         }
                       >
-                        {value ?? <span className="text-body-secondary fw-normal">—</span>}
+                        {value !== null ? (
+                          estimateLevel(value, shown.scale).short
+                        ) : (
+                          <span className="text-body-secondary fw-normal">—</span>
+                        )}
                         {cell?.comment ? (
                           <sup className="ms-1" aria-label="avec commentaire">
                             ✎

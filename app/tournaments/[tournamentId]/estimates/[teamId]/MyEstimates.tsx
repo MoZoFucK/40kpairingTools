@@ -7,6 +7,7 @@ import { MissionBadge } from "@/components/lists/MissionBadge";
 import { EstimatePicker } from "@/components/estimates/EstimatePicker";
 import { EstimateCommentField } from "@/components/estimates/EstimateCommentField";
 import { saveEstimate, saveEstimateComment } from "../actions";
+import type { EstimateScaleSize } from "@/lib/estimates/scale";
 import type { EstimateValue } from "@/types/domain";
 
 export interface EstimateTarget {
@@ -26,6 +27,7 @@ export function MyEstimates({
   tournamentId,
   myDisposition,
   targets,
+  scale,
   disabled,
   closedReason,
 }: {
@@ -34,6 +36,7 @@ export function MyEstimates({
   /** Sans elle, aucune mission ne peut être déduite. */
   myDisposition: string | null;
   targets: readonly EstimateTarget[];
+  scale: EstimateScaleSize;
   disabled: boolean;
   closedReason: string | null;
 }) {
@@ -60,6 +63,7 @@ export function MyEstimates({
             playerId={playerId}
             myDisposition={myDisposition}
             target={target}
+            scale={scale}
             disabled={disabled}
           />
         ))}
@@ -78,11 +82,13 @@ function EstimateCard({
   playerId,
   myDisposition,
   target: { opponent, value, comment },
+  scale,
   disabled,
 }: {
   playerId: string;
   myDisposition: string | null;
   target: EstimateTarget;
+  scale: EstimateScaleSize;
   disabled: boolean;
 }) {
   const [open, setOpen] = useState(false);
@@ -144,6 +150,7 @@ function EstimateCard({
 
         <EstimatePicker
           value={value}
+          scale={scale}
           disabled={disabled}
           onSave={async (next) => {
             const result = await saveEstimate(playerId, opponent.id, next);

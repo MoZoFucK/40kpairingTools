@@ -1,3 +1,4 @@
+import { DEFAULT_ESTIMATE_SCALE, type EstimateScaleSize } from "@/lib/estimates/scale";
 import type { EstimateValue } from "@/types/domain";
 
 /**
@@ -30,6 +31,8 @@ export interface Matrix {
   opponentPlayers: readonly MatrixPlayer[];
   /** Indexée `${ourPlayerId}:${opponentPlayerId}`. */
   cells: ReadonlyMap<string, MatrixCell>;
+  /** Échelle du tournoi : elle décide des libellés affichés, pas des valeurs. */
+  scale: EstimateScaleSize;
 }
 
 export function cellKey(ourPlayerId: string, opponentPlayerId: string): string {
@@ -47,6 +50,7 @@ export function buildMatrix(
   ourPlayers: readonly MatrixPlayer[],
   opponentPlayers: readonly MatrixPlayer[],
   estimates: readonly RawEstimate[],
+  scale: EstimateScaleSize = DEFAULT_ESTIMATE_SCALE,
 ): Matrix {
   const cells = new Map<string, MatrixCell>();
 
@@ -76,7 +80,7 @@ export function buildMatrix(
     });
   }
 
-  return { ourPlayers, opponentPlayers, cells };
+  return { ourPlayers, opponentPlayers, cells, scale };
 }
 
 export function getCell(
@@ -126,5 +130,6 @@ export function transpose(matrix: Matrix): Matrix {
     ourPlayers: matrix.opponentPlayers,
     opponentPlayers: matrix.ourPlayers,
     cells,
+    scale: matrix.scale,
   };
 }

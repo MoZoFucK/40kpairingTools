@@ -39,7 +39,7 @@ export default async function PairingPage({
     await Promise.all([
       supabase
         .from("tournaments")
-        .select("name, team_size")
+        .select("name, team_size, estimate_scale")
         .eq("id", tournamentId)
         .maybeSingle(),
       supabase.from("teams").select("name").eq("id", round.opponent_team_id).maybeSingle(),
@@ -127,6 +127,7 @@ export default async function PairingPage({
           estimates={estimates ?? []}
           actions={(actions ?? []) as StoredAction[]}
           readOnly={locked}
+          scale={tournament.estimate_scale}
         />
       )}
 

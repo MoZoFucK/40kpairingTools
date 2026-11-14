@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { buildMatrix, getCell, type MatrixPlayer } from "@/lib/estimates/matrix";
-import { estimateLevel } from "@/lib/estimates/scale";
+import { DEFAULT_ESTIMATE_SCALE, estimateLevel } from "@/lib/estimates/scale";
 import { ROUND_STATUS_LABEL } from "@/lib/rounds/status";
 import { describeStoredAction } from "@/lib/pairing/journal";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
@@ -44,7 +44,11 @@ export default async function HistoryRoundPage({
         .eq("tournament_id", tournamentId)
         .eq("kind", "OUR_TEAM")
         .maybeSingle(),
-      supabase.from("tournaments").select("name").eq("id", tournamentId).maybeSingle(),
+      supabase
+        .from("tournaments")
+        .select("name, estimate_scale")
+        .eq("id", tournamentId)
+        .maybeSingle(),
     ]);
 
   const [{ data: ours }, { data: theirs }] = await Promise.all([
@@ -83,7 +87,12 @@ export default async function HistoryRoundPage({
   const byId = new Map<string, MatrixPlayer>(
     [...ourPlayers, ...opponentPlayers].map((player) => [player.id, player]),
   );
-  const matrix = buildMatrix(ourPlayers, opponentPlayers, estimates ?? []);
+  const matrix = buildMatrix(
+    ourPlayers,
+    opponentPlayers,
+    estimates ?? [],
+    tournament?.estimate_scale ?? DEFAULT_ESTIMATE_SCALE,
+  );
 
   const ordered = matches ?? [];
 
@@ -164,10 +173,11 @@ export default async function HistoryRoundPage({
                       <td
                         key={opponent.id}
                         className={`text-center fw-semibold ${
-                          value === null ? "" : estimateLevel(value).className
+                          value === null ? "" : estimateLevel(value, matrix.scale).className
                         }`}
+                        title={value === null ? undefined : estimateLevel(value, matrix.scale).label}
                       >
-                        {value ?? "—"}
+                        {value === null ? "—" : estimateLevel(value, matrix.scale).short}
                       </td>
                     );
                   })}

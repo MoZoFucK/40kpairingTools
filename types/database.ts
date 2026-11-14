@@ -22,6 +22,7 @@ import type {
 } from "@/types/domain";
 import type { Side } from "@/lib/pairing/types";
 import type { Disposition } from "@/lib/lists/dispositions";
+import type { EstimateScaleSize } from "@/lib/estimates/scale";
 
 export type ProfileRow = {
   user_id: string;
@@ -36,6 +37,7 @@ export type TournamentRow = {
   id: string;
   name: string;
   team_size: number;
+  estimate_scale: EstimateScaleSize;
   created_by: string;
   created_at: string;
   updated_at: string;
@@ -143,7 +145,7 @@ export interface Database {
       tournaments: {
         Row: TournamentRow;
         Insert: Pick<TournamentRow, "name" | "created_by"> & Partial<TournamentRow>;
-        Update: Partial<Pick<TournamentRow, "name" | "team_size">>;
+        Update: Partial<Pick<TournamentRow, "name" | "team_size" | "estimate_scale">>;
         Relationships: [];
       };
       teams: {

@@ -6,6 +6,8 @@
  * sont rédigés pour l'utilisateur, jamais pour le développeur (§37).
  */
 
+import { isEstimateScaleSize } from "@/lib/estimates/scale";
+
 export const MIN_TEAM_SIZE = 4;
 export const MAX_TEAM_SIZE = 12;
 
@@ -14,6 +16,8 @@ export type FieldErrors = Readonly<Record<string, string>>;
 export interface TournamentInput {
   name: string;
   teamSize: number;
+  /** Absente : l'échelle n'est pas modifiée (5 à la création). */
+  estimateScale?: number;
 }
 
 export interface PlayerInput {
@@ -61,6 +65,10 @@ export function validateTournament(input: TournamentInput): FieldErrors {
   const sizeError = validateTeamSize(input.teamSize);
   if (sizeError) {
     errors.teamSize = sizeError;
+  }
+
+  if (input.estimateScale !== undefined && !isEstimateScaleSize(input.estimateScale)) {
+    errors.estimateScale = "Les estimés se notent sur 3 ou sur 5.";
   }
 
   return errors;

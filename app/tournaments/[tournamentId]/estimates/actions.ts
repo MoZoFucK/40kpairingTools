@@ -3,7 +3,12 @@
 import { requireUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { areTeamEstimatesEditable } from "@/lib/rounds/status";
-import { isEstimateValue } from "@/lib/estimates/scale";
+import {
+  DEFAULT_ESTIMATE_SCALE,
+  estimateScale,
+  isEstimateValue,
+  type EstimateScaleSize,
+} from "@/lib/estimates/scale";
 import { ESTIMATE_COMMENT_MAX_LENGTH } from "@/lib/estimates/comment";
 
 export interface SaveEstimateResult {
@@ -61,6 +66,26 @@ async function refusalFor(
   return null;
 }
 
+/** Échelle des estimés du tournoi de ce joueur. */
+async function scaleOfPlayer(supabase: Supabase, playerId: string): Promise<EstimateScaleSize> {
+  const { data: player } = await supabase
+    .from("players")
+    .select("team_id")
+    .eq("id", playerId)
+    .maybeSingle();
+  const { data: team } = player
+    ? await supabase.from("teams").select("tournament_id").eq("id", player.team_id).maybeSingle()
+    : { data: null };
+  const { data: tournament } = team
+    ? await supabase
+        .from("tournaments")
+        .select("estimate_scale")
+        .eq("id", team.tournament_id)
+        .maybeSingle()
+    : { data: null };
+  return tournament?.estimate_scale ?? DEFAULT_ESTIMATE_SCALE;
+}
+
 /** Enregistre la note d'un joueur sur un match possible. */
 export async function saveEstimate(
   playerId: string,
@@ -77,6 +102,16 @@ export async function saveEstimate(
   const refusal = await refusalFor(supabase, playerId, opponentPlayerId);
   if (refusal) {
     return { ok: false, message: refusal };
+  }
+
+  const scale = await scaleOfPlayer(supabase, playerId);
+  if (!isEstimateValue(value, scale)) {
+    return {
+      ok: false,
+      message: `Ce tournoi note les estimés sur ${scale} : ${estimateScale(scale)
+        .map((level) => level.label)
+        .join(", ")}.`,
+    };
   }
 
   const { error } = await supabase

@@ -27,7 +27,7 @@ export default async function TournamentPage({
   // La RLS fait le tri : un tournoi hors de portée revient simplement vide.
   const { data: tournament } = await supabase
     .from("tournaments")
-    .select("id, name, team_size")
+    .select("id, name, team_size, estimate_scale")
     .eq("id", tournamentId)
     .maybeSingle();
 
@@ -285,6 +285,7 @@ export default async function TournamentPage({
                 id: tournament.id,
                 name: tournament.name,
                 teamSize: tournament.team_size,
+                estimateScale: tournament.estimate_scale,
               }}
             />
           </div>

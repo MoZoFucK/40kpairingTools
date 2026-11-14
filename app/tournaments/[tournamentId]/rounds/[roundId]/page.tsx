@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DEFAULT_ESTIMATE_SCALE } from "@/lib/estimates/scale";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/session";
 import { canManageRounds } from "@/lib/auth/roles";
@@ -32,7 +33,11 @@ export default async function RoundPage({
 
   const [{ data: opponentTeam }, { data: tournament }] = await Promise.all([
     supabase.from("teams").select("name").eq("id", round.opponent_team_id).maybeSingle(),
-    supabase.from("tournaments").select("name").eq("id", tournamentId).maybeSingle(),
+    supabase
+      .from("tournaments")
+      .select("name, estimate_scale")
+      .eq("id", tournamentId)
+      .maybeSingle(),
   ]);
 
   const { data: ourTeam } = await supabase
@@ -128,6 +133,7 @@ export default async function RoundPage({
           ourPlayers={(ourPlayers ?? []) as MatrixPlayer[]}
           opponentPlayers={(opponentPlayers ?? []) as MatrixPlayer[]}
           initialEstimates={estimates ?? []}
+          scale={tournament?.estimate_scale ?? DEFAULT_ESTIMATE_SCALE}
         />
       </section>
     </div>

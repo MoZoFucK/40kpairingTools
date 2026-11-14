@@ -1,4 +1,4 @@
-import { ESTIMATE_SCALE } from "@/lib/estimates/scale";
+import { ESTIMATE_SCALE, THREE_LEVEL_SCALE } from "@/lib/estimates/scale";
 import {
   GUIDE_CYCLE,
   GUIDE_MISSIONS,
@@ -161,17 +161,30 @@ export default function GuidePage() {
 
       <section>
         <h2 className="h5 mb-3">Échelle des estimés</h2>
-        <ul className="list-group list-group-flush" style={{ maxWidth: "24rem" }}>
-          {ESTIMATE_SCALE.map((level) => (
-            <li
-              key={level.value}
-              className={`list-group-item d-flex justify-content-between ${level.className}`}
-            >
-              <span className="fw-semibold">{level.value}</span>
-              <span>{level.label}</span>
-            </li>
+        <p className="text-body-secondary">
+          Le coach choisit l&apos;échelle de chaque tournoi dans ses réglages : sur 5, ou sur 3.
+        </p>
+        <div className="d-flex flex-wrap gap-4">
+          {[
+            { title: "Sur 5", levels: ESTIMATE_SCALE },
+            { title: "Sur 3", levels: THREE_LEVEL_SCALE },
+          ].map(({ title, levels }) => (
+            <div key={title} style={{ minWidth: "16rem", maxWidth: "24rem" }}>
+              <h3 className="h6">{title}</h3>
+              <ul className="list-group list-group-flush">
+                {levels.map((level) => (
+                  <li
+                    key={level.value}
+                    className={`list-group-item d-flex justify-content-between ${level.className}`}
+                  >
+                    <span className="fw-semibold">{level.short}</span>
+                    <span>{level.label}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           ))}
-        </ul>
+        </div>
       </section>
     </div>
   );

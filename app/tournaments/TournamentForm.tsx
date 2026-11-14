@@ -4,6 +4,12 @@ import { useActionState } from "react";
 import { createTournament, updateTournament, type FormState } from "./actions";
 import { FieldError, FormMessage, SubmitButton } from "@/components/ui/FormFeedback";
 import { MAX_TEAM_SIZE, MIN_TEAM_SIZE } from "@/lib/validation/team";
+import {
+  DEFAULT_ESTIMATE_SCALE,
+  ESTIMATE_SCALE_SIZES,
+  estimateScaleLabel,
+  type EstimateScaleSize,
+} from "@/lib/estimates/scale";
 
 const EMPTY: FormState = {};
 
@@ -16,7 +22,12 @@ const SIZES = Array.from(
 export function TournamentForm({
   tournament,
 }: {
-  tournament?: { id: string; name: string; teamSize: number };
+  tournament?: {
+    id: string;
+    name: string;
+    teamSize: number;
+    estimateScale: EstimateScaleSize;
+  };
 }) {
   const [state, action] = useActionState(
     tournament ? updateTournament : createTournament,
@@ -61,6 +72,29 @@ export function TournamentForm({
           ))}
         </select>
         <FieldError message={state.errors?.teamSize} />
+      </div>
+
+      <div className="mb-3">
+        <label htmlFor="tournament-estimate-scale" className="form-label">
+          Échelle des estimés
+        </label>
+        <select
+          id="tournament-estimate-scale"
+          name="estimateScale"
+          className={`form-select ${state.errors?.estimateScale ? "is-invalid" : ""}`}
+          defaultValue={tournament?.estimateScale ?? DEFAULT_ESTIMATE_SCALE}
+          aria-describedby="tournament-estimate-scale-help"
+        >
+          {ESTIMATE_SCALE_SIZES.map((size) => (
+            <option key={size} value={size}>
+              {estimateScaleLabel(size)}
+            </option>
+          ))}
+        </select>
+        <div id="tournament-estimate-scale-help" className="form-text">
+          Le passage sur 3 est refusé si des estimés à 2 ou 4 ont déjà été saisis.
+        </div>
+        <FieldError message={state.errors?.estimateScale} />
       </div>
 
       <SubmitButton label={tournament ? "Enregistrer" : "Créer le tournoi"} />

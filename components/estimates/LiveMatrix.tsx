@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { buildMatrix, type MatrixPlayer, type RawEstimate } from "@/lib/estimates/matrix";
+import type { EstimateScaleSize } from "@/lib/estimates/scale";
 import { useEstimatesChannel } from "@/lib/supabase/useEstimatesChannel";
 import { EstimateMatrix } from "./EstimateMatrix";
 
@@ -16,17 +17,19 @@ export function LiveMatrix({
   ourPlayers,
   opponentPlayers,
   initialEstimates,
+  scale,
 }: {
   tournamentId: string;
   ourPlayers: readonly MatrixPlayer[];
   opponentPlayers: readonly MatrixPlayer[];
   initialEstimates: readonly RawEstimate[];
+  scale: EstimateScaleSize;
 }) {
   const { estimates, status } = useEstimatesChannel(tournamentId, initialEstimates);
 
   const matrix = useMemo(
-    () => buildMatrix(ourPlayers, opponentPlayers, estimates),
-    [ourPlayers, opponentPlayers, estimates],
+    () => buildMatrix(ourPlayers, opponentPlayers, estimates, scale),
+    [ourPlayers, opponentPlayers, estimates, scale],
   );
 
   return (

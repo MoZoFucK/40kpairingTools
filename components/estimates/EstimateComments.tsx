@@ -59,10 +59,10 @@ export function EstimateComments({
               <span className="fw-semibold">{opponent.name}</span>{" "}
               {value !== null ? (
                 <span
-                  className={`badge ${estimateLevel(value).className}`}
-                  title={estimateLevel(value).label}
+                  className={`badge ${estimateLevel(value, matrix.scale).className}`}
+                  title={estimateLevel(value, matrix.scale).label}
                 >
-                  {value}
+                  {estimateLevel(value, matrix.scale).short}
                 </span>
               ) : null}
               <div className="mt-1">« {comment} »</div>

@@ -28,7 +28,7 @@ export const GUIDE_ROLES: readonly GuideRole[] = [
     role: "Joueur",
     lines: [
       "Saisit sa liste et sa disposition pour chaque tournoi.",
-      "Pose un estimé de 1 à 5 contre chaque joueur de chaque équipe adverse, avec un commentaire facultatif pour le coach.",
+      "Pose un estimé (de 1 à 5, ou Défaite / Égalité / Victoire selon le tournoi) contre chaque joueur de chaque équipe adverse, avec un commentaire facultatif pour le coach.",
       "Consulte les listes adverses, la note du coach et l'historique.",
     ],
   },

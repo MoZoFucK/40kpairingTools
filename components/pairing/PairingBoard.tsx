@@ -7,7 +7,7 @@ import {
   type MatrixPlayer,
   type RawEstimate,
 } from "@/lib/estimates/matrix";
-import { estimateLevel } from "@/lib/estimates/scale";
+import { estimateLevel, type EstimateScaleSize } from "@/lib/estimates/scale";
 import { EstimateComments } from "@/components/estimates/EstimateComments";
 import { replayActions } from "@/lib/pairing/engine";
 import { missionFor as lookupMission } from "@/lib/lists/missions";
@@ -51,6 +51,7 @@ export function PairingBoard({
   estimates,
   actions,
   readOnly,
+  scale,
 }: {
   tournamentId: string;
   roundId: string;
@@ -60,6 +61,7 @@ export function PairingBoard({
   estimates: readonly RawEstimate[];
   actions: readonly StoredAction[];
   readOnly: boolean;
+  scale: EstimateScaleSize;
 }) {
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -73,8 +75,8 @@ export function PairingBoard({
   }, [ourPlayers, opponentPlayers]);
 
   const matrix = useMemo(
-    () => buildMatrix(ourPlayers, opponentPlayers, estimates),
-    [ourPlayers, opponentPlayers, estimates],
+    () => buildMatrix(ourPlayers, opponentPlayers, estimates, scale),
+    [ourPlayers, opponentPlayers, estimates, scale],
   );
 
   const replayed = useMemo(
@@ -209,11 +211,11 @@ export function PairingBoard({
                         <td
                           key={opponent.id}
                           className={`text-center fw-semibold ${
-                            value !== null && stillOpen ? estimateLevel(value).className : ""
+                            value !== null && stillOpen ? estimateLevel(value, scale).className : ""
                           } ${stillOpen ? "" : "is-paired"}`}
                           title={cell?.comment ? `« ${cell.comment} »` : undefined}
                         >
-                          {value ?? "—"}
+                          {value !== null ? estimateLevel(value, scale).short : "—"}
                           {cell?.comment ? (
                             <sup className="ms-1" aria-label="avec commentaire">
                               ✎
@@ -261,6 +263,7 @@ export function PairingBoard({
         <PairingStep
           state={state}
           players={players}
+          scale={scale}
           busy={busy}
           estimateFor={estimateFor}
           missionFor={missionFor}
@@ -312,8 +315,11 @@ export function PairingBoard({
                       </span>
                     ) : null}
                     {value !== null && value !== undefined ? (
-                      <span className={`badge ${estimateLevel(value).className}`}>
-                        {value}
+                      <span
+                        className={`badge ${estimateLevel(value, scale).className}`}
+                        title={estimateLevel(value, scale).label}
+                      >
+                        {estimateLevel(value, scale).short}
                       </span>
                     ) : null}
                   </span>

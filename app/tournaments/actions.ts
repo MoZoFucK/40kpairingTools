@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireCoach } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { DEFAULT_ESTIMATE_SCALE, type EstimateScaleSize } from "@/lib/estimates/scale";
 import {
   hasErrors,
   optionalText,
@@ -33,6 +34,9 @@ function readableError(message: string): string {
   if (message.includes("players_single_account_per_team")) {
     return "Ce compte est déjà rattaché à un autre joueur de l'équipe.";
   }
+  if (message.includes("estimate_scale_conflict")) {
+    return "Des estimés à 2 ou 4 ont déjà été saisis : ils n'ont pas d'équivalent sur 3. Garde l'échelle sur 5, ou fais-les corriger d'abord.";
+  }
   if (message.includes("violates row-level security")) {
     return "Tu n'as pas les droits sur ce tournoi.";
   }
@@ -47,8 +51,9 @@ export async function createTournament(
 
   const name = String(formData.get("name") ?? "");
   const teamSize = Number(formData.get("teamSize") ?? 6);
+  const estimateScale = Number(formData.get("estimateScale") ?? DEFAULT_ESTIMATE_SCALE);
 
-  const errors = validateTournament({ name, teamSize });
+  const errors = validateTournament({ name, teamSize, estimateScale });
   if (hasErrors(errors)) {
     return { errors };
   }
@@ -56,7 +61,12 @@ export async function createTournament(
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("tournaments")
-    .insert({ name: name.trim(), team_size: teamSize, created_by: user.id })
+    .insert({
+      name: name.trim(),
+      team_size: teamSize,
+      estimate_scale: estimateScale as EstimateScaleSize,
+      created_by: user.id,
+    })
     .select("id")
     .single();
 
@@ -77,8 +87,9 @@ export async function updateTournament(
   const tournamentId = String(formData.get("tournamentId") ?? "");
   const name = String(formData.get("name") ?? "");
   const teamSize = Number(formData.get("teamSize") ?? 6);
+  const estimateScale = Number(formData.get("estimateScale") ?? DEFAULT_ESTIMATE_SCALE);
 
-  const errors = validateTournament({ name, teamSize });
+  const errors = validateTournament({ name, teamSize, estimateScale });
   if (hasErrors(errors)) {
     return { errors };
   }
@@ -86,7 +97,11 @@ export async function updateTournament(
   const supabase = await createClient();
   const { error } = await supabase
     .from("tournaments")
-    .update({ name: name.trim(), team_size: teamSize })
+    .update({
+      name: name.trim(),
+      team_size: teamSize,
+      estimate_scale: estimateScale as EstimateScaleSize,
+    })
     .eq("id", tournamentId);
 
   if (error) {

@@ -136,7 +136,7 @@ export const PAGE_HELP: Readonly<Record<HelpPage, PageHelpContent>> = {
   },
 
   estimates: {
-    purpose: "Tes estimés contre chaque joueur d'une équipe adverse, de 1 à 5.",
+    purpose: "Tes estimés contre chaque joueur d'une équipe adverse, sur l'échelle choisie par le coach pour le tournoi.",
     player: [
       "Pour chaque adversaire, choisis une valeur de 1 (très défavorable) à 5 (très favorable). Elle est enregistrée immédiatement.",
       "Le commentaire, facultatif, accompagne ta note : quelques mots que ton coach lit sur la matrice et pendant le pairing. Il s'enregistre quand tu quittes le champ.",

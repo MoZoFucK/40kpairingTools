@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { MatrixPlayer } from "@/lib/estimates/matrix";
-import { estimateLevel } from "@/lib/estimates/scale";
+import { estimateLevel, type EstimateScaleSize } from "@/lib/estimates/scale";
 import { listSummary } from "@/lib/lists/summary";
 import type { PairingState, Side } from "@/lib/pairing/types";
 import { getPossibleSelections } from "@/lib/pairing/selectors";
@@ -25,6 +25,7 @@ import type { EstimateValue } from "@/types/domain";
  */
 function PlayerButton({
   player,
+  scale,
   estimate,
   mission,
   selected,
@@ -32,6 +33,7 @@ function PlayerButton({
   onClick,
 }: {
   player: MatrixPlayer;
+  scale: EstimateScaleSize;
   /**
    * `null` : le joueur n'a rien saisi. `undefined` : l'estimé n'a pas d'objet ici —
    * au choix du défenseur, aucun adversaire n'est encore désigné, donc aucun match
@@ -68,10 +70,10 @@ function PlayerButton({
         </span>
       ) : (
         <span
-          className={`badge flex-shrink-0 ${estimateLevel(estimate).className}`}
-          title={`Estimé : ${estimate} — ${estimateLevel(estimate).label}`}
+          className={`badge flex-shrink-0 ${estimateLevel(estimate, scale).className}`}
+          title={`Estimé : ${estimateLevel(estimate, scale).label}`}
         >
-          {estimate}
+          {estimateLevel(estimate, scale).short}
         </span>
       )}
     </button>
@@ -92,6 +94,7 @@ function DefenderList({ player }: { player: MatrixPlayer | undefined }) {
 export function PairingStep({
   state,
   players,
+  scale,
   busy,
   estimateFor,
   missionFor,
@@ -101,6 +104,7 @@ export function PairingStep({
 }: {
   state: PairingState;
   players: ReadonlyMap<string, MatrixPlayer>;
+  scale: EstimateScaleSize;
   busy: boolean;
   /** Estimé du match qu'un attaquant produirait face au défenseur du camp indiqué. */
   estimateFor: (attackerId: string, defendingSide: Side) => EstimateValue | null;
@@ -168,6 +172,7 @@ export function PairingStep({
                       <PlayerButton
                         key={player.id}
                         player={player}
+                        scale={scale}
                         disabled={busy}
                         onClick={() => onSelectDefender(side, player.id)}
                       />
@@ -206,6 +211,7 @@ export function PairingStep({
                         <PlayerButton
                           key={player.id}
                           player={player}
+                          scale={scale}
                           estimate={estimateFor(player.id, against)}
                           mission={missionFor(player.id, against)}
                           selected={selection.includes(player.id)}
@@ -259,6 +265,7 @@ export function PairingStep({
                       <PlayerButton
                         key={player.id}
                         player={player}
+                        scale={scale}
                         estimate={estimateFor(player.id, against)}
                         mission={missionFor(player.id, against)}
                         disabled={busy}

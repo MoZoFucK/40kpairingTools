@@ -8,6 +8,7 @@ import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { PageHelp } from "@/components/help/PageHelp";
 import { endingAt, estimatesTrail } from "@/lib/navigation/trail";
 import { MyEstimates, type EstimateTarget } from "./MyEstimates";
+import { DEFAULT_ESTIMATE_SCALE } from "@/lib/estimates/scale";
 import type { EstimateValue } from "@/types/domain";
 
 export const metadata = { title: "Mes estimés — 40K Team Pairing Assistant" };
@@ -40,7 +41,11 @@ export default async function MyEstimatesPage({
 
   const [{ data: tournament }, { data: account }, { data: ourTeam }, { data: rounds }] =
     await Promise.all([
-      supabase.from("tournaments").select("name").eq("id", tournamentId).maybeSingle(),
+      supabase
+        .from("tournaments")
+        .select("name, estimate_scale")
+        .eq("id", tournamentId)
+        .maybeSingle(),
       supabase.auth.getUser(),
       supabase
         .from("teams")
@@ -147,6 +152,7 @@ export default async function MyEstimatesPage({
         myDisposition={me.disposition}
         tournamentId={tournamentId}
         targets={targets}
+        scale={tournament?.estimate_scale ?? DEFAULT_ESTIMATE_SCALE}
         disabled={!areTeamEstimatesEditable(statuses)}
         closedReason={teamEstimatesClosedReason(statuses)}
       />
