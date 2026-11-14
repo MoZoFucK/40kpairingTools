@@ -9,6 +9,8 @@ import { PageHelp } from "@/components/help/PageHelp";
 import { endingAt, estimatesTrail } from "@/lib/navigation/trail";
 import { MyEstimates, type EstimateTarget } from "./MyEstimates";
 import { DEFAULT_ESTIMATE_SCALE } from "@/lib/estimates/scale";
+import type { MatrixPlayer } from "@/lib/estimates/matrix";
+import { LiveMatrix } from "@/components/estimates/LiveMatrix";
 import type { EstimateValue } from "@/types/domain";
 
 export const metadata = { title: "Mes estimés — 40K Team Pairing Assistant" };
@@ -19,6 +21,10 @@ export const metadata = { title: "Mes estimés — 40K Team Pairing Assistant" }
  * L'équipe, pas la ronde : le joueur estime avant le tirage. La saisie se ferme dès
  * qu'une ronde contre cette équipe a dépassé la phase d'estimation — la même règle que
  * `estimates_open_for` en base.
+ *
+ * Sous la saisie, la matrice de l'équipe contre cette même équipe adverse : le joueur lit
+ * les estimés et commentaires de ses coéquipiers, en direct. La RLS l'y autorise déjà
+ * (`estimates_select` : tout participant au tournoi) ; l'écriture reste limitée aux siens.
  */
 export default async function MyEstimatesPage({
   params,
@@ -83,26 +89,37 @@ export default async function MyEstimatesPage({
     );
   }
 
-  const [{ data: opponents }, { data: estimates }, { data: armyRules }, { data: detachmentRules }] =
-    await Promise.all([
-      supabase
-        .from("players")
-        .select("id, name, army, detachment, list_name, list_content, notes, disposition")
-        .eq("team_id", teamId)
-        .order("created_at", { ascending: true }),
-      supabase
-        .from("estimates")
-        .select("opponent_player_id, value, comment")
-        .eq("player_id", me.id),
-      supabase.from("army_rules").select("army, rule"),
-      supabase.from("detachment_rules").select("army, detachment, rule"),
-    ]);
+  const [
+    { data: opponents },
+    { data: teammates },
+    { data: estimates },
+    { data: armyRules },
+    { data: detachmentRules },
+  ] = await Promise.all([
+    supabase
+      .from("players")
+      .select("id, name, army, detachment, list_name, list_content, notes, disposition")
+      .eq("team_id", teamId)
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("players")
+      .select("id, name, army, detachment")
+      .eq("team_id", ourTeam?.id ?? "")
+      .order("created_at", { ascending: true }),
+    // Tous les estimés du tournoi : les siens pour la saisie, ceux de l'équipe pour la
+    // matrice. Ceux qui visent une autre équipe adverse sont écartés par `buildMatrix`.
+    supabase
+      .from("estimates")
+      .select("player_id, opponent_player_id, value, comment")
+      .eq("tournament_id", tournamentId),
+    supabase.from("army_rules").select("army, rule"),
+    supabase.from("detachment_rules").select("army, detachment, rule"),
+  ]);
 
   const byOpponent = new Map<string, { value: EstimateValue; comment: string | null }>(
-    (estimates ?? []).map((row) => [
-      row.opponent_player_id,
-      { value: row.value, comment: row.comment },
-    ]),
+    (estimates ?? [])
+      .filter((row) => row.player_id === me.id)
+      .map((row) => [row.opponent_player_id, { value: row.value, comment: row.comment }]),
   );
 
   const targets: EstimateTarget[] = (opponents ?? []).map((opponent) => {
@@ -160,6 +177,26 @@ export default async function MyEstimatesPage({
         disabled={!areTeamEstimatesEditable(statuses)}
         closedReason={teamEstimatesClosedReason(statuses)}
       />
+
+      <section className="mt-5">
+        <h2 className="h6 mb-1">Estimés de l&apos;équipe</h2>
+        <p className="small text-body-secondary mb-2">
+          Ce que tes coéquipiers ont posé contre {team.name}. Lecture seule : chacun ne
+          modifie que les siens.
+        </p>
+        <LiveMatrix
+          tournamentId={tournamentId}
+          ourPlayers={(teammates ?? []) as MatrixPlayer[]}
+          opponentPlayers={(opponents ?? []).map(({ id, name, army, detachment }) => ({
+            id,
+            name,
+            army,
+            detachment,
+          }))}
+          initialEstimates={estimates ?? []}
+          scale={tournament?.estimate_scale ?? DEFAULT_ESTIMATE_SCALE}
+        />
+      </section>
     </div>
   );
 }

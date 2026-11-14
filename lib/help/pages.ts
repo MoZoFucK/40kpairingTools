@@ -145,9 +145,10 @@ export const PAGE_HELP: Readonly<Record<HelpPage, PageHelpContent>> = {
       "« Voir la liste complète » déplie la liste adverse et ses règles.",
       "La mission primaire du match se déduit de ta disposition face à celle de l'adversaire. Elle s'affiche dès que les deux sont renseignées ; la tienne se saisit dans « Ma liste ».",
       "Tu peux corriger tes estimés jusqu'à ce que le coach les verrouille.",
+      "« Estimés de l'équipe », en bas de page, montre en direct ce que tes coéquipiers ont posé contre cette équipe, avec leurs commentaires. Tu ne peux modifier que les tiens.",
     ],
     coach: [
-      "Cette page est celle de ta fiche joueur. Les estimés de toute l'équipe se lisent sur la page de la ronde.",
+      "Cette page est celle de ta fiche joueur. Les estimés de toute l'équipe se lisent aussi sur la page de la ronde.",
     ],
   },
 
