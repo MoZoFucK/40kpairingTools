@@ -2,8 +2,15 @@
 
 import { useState } from "react";
 import { ArmyCard } from "@/components/opponents/ArmyCard";
+import {
+  ListVerification,
+  type ListVerificationData,
+} from "@/components/opponents/ListVerification";
 import { deleteOpponentPlayer } from "../actions";
-import { OpponentPlayerForm, type EditableOpponent } from "./OpponentPlayerForm";
+import {
+  OpponentPlayerForm,
+  type EditableOpponent,
+} from "./OpponentPlayerForm";
 
 export function OpponentRoster({
   tournamentId,
@@ -12,13 +19,19 @@ export function OpponentRoster({
   knownArmies,
   knownDetachments,
   rules,
+  canVerify,
 }: {
   tournamentId: string;
   teamId: string;
-  players: readonly EditableOpponent[];
+  players: readonly (EditableOpponent & {
+    verification: ListVerificationData | null;
+  })[];
   knownArmies: readonly string[];
   knownDetachments: readonly string[];
-  rules: Readonly<Record<string, { armyRule?: string; detachmentRule?: string }>>;
+  rules: Readonly<
+    Record<string, { armyRule?: string; detachmentRule?: string }>
+  >;
+  canVerify: boolean;
 }) {
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -61,23 +74,39 @@ export function OpponentRoster({
                 detachmentRule: rules[player.id]?.detachmentRule ?? null,
               }}
               footer={
-                <div className="d-flex gap-2">
-                  <button
-                    type="button"
-                    className="btn btn-outline-secondary btn-sm"
-                    onClick={() => setEditingId(player.id)}
-                  >
-                    Modifier
-                  </button>
-
-                  <form action={deleteOpponentPlayer}>
-                    <input type="hidden" name="tournamentId" value={tournamentId} />
-                    <input type="hidden" name="teamId" value={teamId} />
-                    <input type="hidden" name="playerId" value={player.id} />
-                    <button type="submit" className="btn btn-outline-danger btn-sm">
-                      Supprimer
+                <div className="d-flex flex-column gap-2">
+                  <ListVerification
+                    tournamentId={tournamentId}
+                    teamId={teamId}
+                    playerId={player.id}
+                    verification={player.verification}
+                    canEdit={canVerify}
+                  />
+                  <div className="d-flex gap-2">
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary btn-sm"
+                      onClick={() => setEditingId(player.id)}
+                    >
+                      Modifier
                     </button>
-                  </form>
+
+                    <form action={deleteOpponentPlayer}>
+                      <input
+                        type="hidden"
+                        name="tournamentId"
+                        value={tournamentId}
+                      />
+                      <input type="hidden" name="teamId" value={teamId} />
+                      <input type="hidden" name="playerId" value={player.id} />
+                      <button
+                        type="submit"
+                        className="btn btn-outline-danger btn-sm"
+                      >
+                        Supprimer
+                      </button>
+                    </form>
+                  </div>
                 </div>
               }
             />

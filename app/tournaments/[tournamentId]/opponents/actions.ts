@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireCoach } from "@/lib/auth/session";
+import { requireCoach, requireUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { isDisposition } from "@/lib/lists/dispositions";
 import { ruleKey } from "@/lib/validation/army";
@@ -167,6 +167,44 @@ export async function deleteOpponentPlayer(formData: FormData): Promise<void> {
   await supabase.from("players").delete().eq("id", playerId);
 
   revalidatePath(`/tournaments/${tournamentId}/opponents/${teamId}`);
+}
+
+export type VerifyResult = { ok: true } | { ok: false; message: string };
+
+/**
+ * Pose ou retire le drapeau « liste vérifiée » d'un joueur adverse.
+ *
+ * Ouvert aux joueurs de notre équipe, pas seulement au coach : c'est souvent celui qui va
+ * affronter la liste qui la relit. Les droits sont contrôlés par la fonction SQL
+ * `set_list_verified`, qui retient aussi le nom de l'auteur.
+ */
+export async function setOpponentListVerified(
+  tournamentId: string,
+  teamId: string,
+  playerId: string,
+  verified: boolean,
+): Promise<VerifyResult> {
+  await requireUser();
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_list_verified", {
+    player: playerId,
+    verified,
+  });
+
+  if (error) {
+    return {
+      ok: false,
+      message:
+        error.code === "42501"
+          ? error.message
+          : "L'enregistrement a échoué. Réessaie dans un instant.",
+    };
+  }
+
+  revalidatePath(`/tournaments/${tournamentId}/opponents/${teamId}`);
+  revalidatePath(`/tournaments/${tournamentId}/opponents`);
+  return { ok: true };
 }
 
 /**

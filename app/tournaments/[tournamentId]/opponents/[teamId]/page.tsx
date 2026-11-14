@@ -4,6 +4,8 @@ import { canManageTeam } from "@/lib/auth/roles";
 import { createClient } from "@/lib/supabase/server";
 import { ruleKey } from "@/lib/validation/army";
 import { ArmyCard } from "@/components/opponents/ArmyCard";
+import { ListVerification } from "@/components/opponents/ListVerification";
+import { isTournamentClosed } from "@/lib/rounds/status";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { PageHelp } from "@/components/help/PageHelp";
 import { endingAt, opponentsTrail } from "@/lib/navigation/trail";
@@ -26,13 +28,19 @@ export default async function OpponentTeamPage({
     .eq("id", teamId)
     .maybeSingle();
 
-  if (!team || team.tournament_id !== tournamentId || team.kind !== "OPPONENT") {
+  if (
+    !team ||
+    team.tournament_id !== tournamentId ||
+    team.kind !== "OPPONENT"
+  ) {
     notFound();
   }
 
   const { data: playerRows } = await supabase
     .from("players")
-    .select("id, name, army, detachment, list_name, list_content, notes, disposition")
+    .select(
+      "id, name, army, detachment, list_name, list_content, notes, disposition, list_verified_at, list_verified_by_name",
+    )
     .eq("team_id", teamId)
     .order("created_at", { ascending: true });
 
@@ -45,17 +53,39 @@ export default async function OpponentTeamPage({
     listContent: row.list_content,
     notes: row.notes,
     disposition: row.disposition,
+    verification:
+      row.list_verified_at && row.list_verified_by_name
+        ? {
+            byName: row.list_verified_by_name,
+            atLabel: formatVerifiedAt(row.list_verified_at),
+          }
+        : null,
   }));
 
   // Référentiel de règles, rapproché en mémoire : quelques dizaines de lignes tout au plus.
-  const [{ data: armyRules }, { data: detachmentRules }, { data: tournament }] =
-    await Promise.all([
-      supabase.from("army_rules").select("army, rule"),
-      supabase.from("detachment_rules").select("army, detachment, rule"),
-      supabase.from("tournaments").select("name").eq("id", tournamentId).maybeSingle(),
-    ]);
+  const [
+    { data: armyRules },
+    { data: detachmentRules },
+    { data: tournament },
+    { data: rounds },
+  ] = await Promise.all([
+    supabase.from("army_rules").select("army, rule"),
+    supabase.from("detachment_rules").select("army, detachment, rule"),
+    supabase
+      .from("tournaments")
+      .select("name")
+      .eq("id", tournamentId)
+      .maybeSingle(),
+    supabase.from("rounds").select("status").eq("tournament_id", tournamentId),
+  ]);
 
-  const rules: Record<string, { armyRule?: string; detachmentRule?: string }> = {};
+  // Tournoi clos : le statut de vérification reste affiché mais ne se modifie plus.
+  const canVerify = !isTournamentClosed(
+    (rounds ?? []).map((round) => round.status),
+  );
+
+  const rules: Record<string, { armyRule?: string; detachmentRule?: string }> =
+    {};
   for (const player of players) {
     const key = ruleKey(player.army);
     const detachmentKey = ruleKey(player.detachment ?? "");
@@ -66,7 +96,8 @@ export default async function OpponentTeamPage({
         detachmentKey.length > 0
           ? detachmentRules?.find(
               (row) =>
-                ruleKey(row.army) === key && ruleKey(row.detachment) === detachmentKey,
+                ruleKey(row.army) === key &&
+                ruleKey(row.detachment) === detachmentKey,
             )?.rule
           : undefined,
     };
@@ -103,7 +134,9 @@ export default async function OpponentTeamPage({
 
       <div className="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
         <h1 className="h4 mb-0">{team.name}</h1>
-        <span className="badge text-bg-secondary">{players.length} joueurs</span>
+        <span className="badge text-bg-secondary">
+          {players.length} joueurs
+        </span>
       </div>
 
       {isCoach ? (
@@ -112,7 +145,11 @@ export default async function OpponentTeamPage({
             <h2 className="h6 mb-3">Équipe</h2>
             <OpponentTeamForm
               tournamentId={tournamentId}
-              team={{ id: team.id, name: team.name, shortName: team.short_name }}
+              team={{
+                id: team.id,
+                name: team.name,
+                shortName: team.short_name,
+              }}
             />
           </div>
         </section>
@@ -128,6 +165,7 @@ export default async function OpponentTeamPage({
             knownArmies={knownArmies}
             knownDetachments={knownDetachments}
             rules={rules}
+            canVerify={canVerify}
           />
         ) : (
           <div className="row g-3">
@@ -145,6 +183,15 @@ export default async function OpponentTeamPage({
                     armyRule: rules[player.id]?.armyRule ?? null,
                     detachmentRule: rules[player.id]?.detachmentRule ?? null,
                   }}
+                  footer={
+                    <ListVerification
+                      tournamentId={tournamentId}
+                      teamId={teamId}
+                      playerId={player.id}
+                      verification={player.verification}
+                      canEdit={canVerify}
+                    />
+                  }
                 />
               </div>
             ))}
@@ -172,4 +219,15 @@ export default async function OpponentTeamPage({
       ) : null}
     </div>
   );
+}
+
+/** Date de vérification, en heure de Paris : le serveur ne connaît pas le fuseau du joueur. */
+function formatVerifiedAt(value: string): string {
+  return new Date(value).toLocaleString("fr-FR", {
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Europe/Paris",
+  });
 }

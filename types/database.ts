@@ -64,6 +64,9 @@ export type PlayerRow = {
   list_content: string | null;
   notes: string | null;
   disposition: Disposition | null;
+  list_verified_at: string | null;
+  list_verified_by: string | null;
+  list_verified_by_name: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -222,7 +225,12 @@ export interface Database {
       };
     };
     Views: { [_ in never]: never };
-    Functions: { [_ in never]: never };
+    Functions: {
+      set_list_verified: {
+        Args: { player: string; verified: boolean };
+        Returns: undefined;
+      };
+    };
     Enums: {
       user_role: UserRole;
       team_kind: TeamKind;

@@ -95,9 +95,11 @@ export const PAGE_HELP: Readonly<Record<HelpPage, PageHelpContent>> = {
       "Pour chaque joueur : nom, armée, détachement, disposition et contenu de la liste.",
       "Les règles d'armée et de détachement sont partagées : saisies une fois, elles s'affichent sur toutes les listes de la même armée.",
       "La note du coach est visible par tes joueurs au moment d'estimer. Elle n'est pas modifiable par eux.",
+      "« J'ai vérifié cette liste » indique, avec ton nom, que la liste saisie a été relue contre la liste officielle. Toi comme tes joueurs pouvez poser ce drapeau ; il disparaît si la liste est modifiée ensuite.",
     ],
     player: [
       "Tu lis les listes adverses, les règles et la note de ton coach avant de poser tes estimés.",
+      "Après avoir relu une liste contre la liste officielle, clique « J'ai vérifié cette liste » : ton nom s'affiche sur la fiche pour toute l'équipe.",
     ],
   },
 
