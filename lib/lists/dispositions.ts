@@ -20,18 +20,44 @@ export interface DispositionEntry {
   label: string;
   /** Glose française, pour lever l'ambiguïté d'un coup d'œil. */
   gloss: string;
+  /**
+   * Couleur de la disposition, reprise de la matrice de gdmissions.app (11e édition) :
+   * les joueurs la reconnaissent d'un tableau à l'autre. Assez sombre pour un texte blanc.
+   */
+  color: string;
 }
 
 export const DISPOSITIONS: readonly DispositionEntry[] = [
-  { value: "TAKE_AND_HOLD", label: "Take and Hold", gloss: "prendre et tenir" },
-  { value: "DISRUPTION", label: "Disruption", gloss: "perturber, saboter" },
-  { value: "PURGE_THE_FOE", label: "Purge the Foe", gloss: "éliminer l'ennemi" },
+  {
+    value: "TAKE_AND_HOLD",
+    label: "Take and Hold",
+    gloss: "prendre et tenir",
+    color: "#2f6b4f",
+  },
+  {
+    value: "DISRUPTION",
+    label: "Disruption",
+    gloss: "perturber, saboter",
+    color: "#1f4f8a",
+  },
+  {
+    value: "PURGE_THE_FOE",
+    label: "Purge the Foe",
+    gloss: "éliminer l'ennemi",
+    color: "#8a2b2b",
+  },
   {
     value: "PRIORITY_ASSETS",
     label: "Priority Assets",
     gloss: "sécuriser les objectifs prioritaires",
+    color: "#a17b14",
   },
-  { value: "RECONNAISSANCE", label: "Reconnaissance", gloss: "reconnaissance" },
+  {
+    value: "RECONNAISSANCE",
+    label: "Reconnaissance",
+    gloss: "reconnaissance",
+    color: "#1f7a82",
+  },
 ] as const;
 
 export function isDisposition(value: unknown): value is Disposition {
@@ -54,6 +80,11 @@ export function dispositionEntry(value: Disposition): DispositionEntry {
  */
 export function dispositionShortLabel(value: string | null | undefined): string | null {
   return isDisposition(value) ? dispositionEntry(value).label : null;
+}
+
+/** Couleur de la disposition, ou `null` si elle n'est pas renseignée. */
+export function dispositionColor(value: string | null | undefined): string | null {
+  return isDisposition(value) ? dispositionEntry(value).color : null;
 }
 
 /** Libellé affichable, ou `null` si la disposition n'est pas renseignée. */

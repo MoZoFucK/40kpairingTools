@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { DispositionBadge } from "@/components/lists/DispositionBadge";
 import { deletePlayer } from "../actions";
 import { AccountLink, type AccountOption } from "./AccountLink";
 import { PlayerForm, type EditablePlayer } from "./PlayerForm";
@@ -15,6 +16,7 @@ export function PlayerList({
   teamId: string;
   players: readonly (EditablePlayer & {
     userId: string | null;
+    /** Valeur brute de l'enum, rendue en pastille colorée. */
     disposition: string | null;
     /** Champs de liste manquants, en toutes lettres ; `null` si la liste est saisie. */
     missingLabel: string | null;
@@ -59,7 +61,12 @@ export function PlayerList({
                   {player.army}
                   {player.detachment ? ` — ${player.detachment}` : ""}
                   {player.listName ? ` — ${player.listName}` : ""}
-                  {player.disposition ? ` — ${player.disposition}` : ""}
+                  {player.disposition ? (
+                    <>
+                      {" — "}
+                      <DispositionBadge disposition={player.disposition} />
+                    </>
+                  ) : null}
                 </div>
                 {player.missingLabel ? (
                   <span

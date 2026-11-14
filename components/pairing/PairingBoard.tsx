@@ -11,6 +11,7 @@ import { estimateLevel, type EstimateScaleSize } from "@/lib/estimates/scale";
 import { EstimateComments } from "@/components/estimates/EstimateComments";
 import { replayActions } from "@/lib/pairing/engine";
 import { missionFor as lookupMission } from "@/lib/lists/missions";
+import { dispositionColor } from "@/lib/lists/dispositions";
 import { describeStoredAction } from "@/lib/pairing/journal";
 import { toEngineAction, type StoredPairingAction } from "@/lib/pairing/persistence";
 import { getAvailablePlayers } from "@/lib/pairing/selectors";
@@ -305,7 +306,12 @@ export function PairingBoard({
 
                   <span className="d-flex align-items-center gap-2 flex-wrap">
                     {lookupMission(ours?.disposition, theirs?.disposition) ? (
-                      <span className="badge text-bg-info">
+                      <span
+                        className="badge text-white"
+                        style={{
+                          backgroundColor: dispositionColor(ours?.disposition) ?? undefined,
+                        }}
+                      >
                         {lookupMission(ours?.disposition, theirs?.disposition)!.name}
                       </span>
                     ) : null}

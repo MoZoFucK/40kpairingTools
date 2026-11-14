@@ -1,3 +1,4 @@
+import { DispositionBadge } from "@/components/lists/DispositionBadge";
 import { dispositionLabel } from "@/lib/lists/dispositions";
 import { parseListSections } from "@/lib/validation/army";
 
@@ -77,9 +78,7 @@ export function ArmyCard({
         ) : null}
         {dispositionLabel(player.disposition) ? (
           <p className="mb-0 mt-2">
-            <span className="badge text-bg-dark">
-              {dispositionLabel(player.disposition)}
-            </span>
+            <DispositionBadge disposition={player.disposition} withGloss />
           </p>
         ) : null}
 

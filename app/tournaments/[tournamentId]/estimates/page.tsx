@@ -4,7 +4,7 @@ import { requireUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { loadPlayerWork, type PlayerWork } from "@/lib/players/work";
 import { describeMissing, missingListFields } from "@/lib/lists/completeness";
-import { dispositionShortLabel } from "@/lib/lists/dispositions";
+import { DispositionBadge } from "@/components/lists/DispositionBadge";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { PageHelp } from "@/components/help/PageHelp";
 import { endingAt, tournamentTrail } from "@/lib/navigation/trail";
@@ -114,7 +114,6 @@ function ListReminder({
   work: PlayerWork;
 }) {
   const missing = missingListFields(work.me);
-  const disposition = dispositionShortLabel(work.me.disposition);
 
   if (missing.length > 0 && !work.closed) {
     return (
@@ -133,7 +132,12 @@ function ListReminder({
   return (
     <p className="small text-body-secondary">
       {work.me.name} · {work.me.army}
-      {disposition ? ` · ${disposition}` : ""}
+      {work.me.disposition ? (
+        <>
+          {" · "}
+          <DispositionBadge disposition={work.me.disposition} />
+        </>
+      ) : null}
     </p>
   );
 }

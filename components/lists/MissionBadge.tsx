@@ -1,5 +1,6 @@
-import { dispositionShortLabel } from "@/lib/lists/dispositions";
+import { dispositionColor } from "@/lib/lists/dispositions";
 import { missionsOfMatch } from "@/lib/lists/missions";
+import { DispositionBadge } from "./DispositionBadge";
 import { MissionSummary } from "./MissionSummary";
 
 /**
@@ -8,6 +9,9 @@ import { MissionSummary } from "./MissionSummary";
  * `detailed` développe le croisement et le résumé de la mission, pour aider le joueur à
  * poser son estimé. Sans ce mode, seul le nom est affiché : pendant le pairing, l'écran
  * est déjà dense et le coach n'a besoin que du nom.
+ *
+ * La mission prend la couleur de notre disposition, comme sur la matrice gdmissions :
+ * chaque mission appartient à la famille de la disposition qui la joue.
  *
  * Rien n'est affiché tant qu'une des deux dispositions manque : une mission fausse serait
  * pire que pas de mission du tout.
@@ -29,7 +33,11 @@ export function MissionBadge({
 
   if (!detailed) {
     return (
-      <span className="badge text-bg-info" title="Mission primaire">
+      <span
+        className="badge text-white"
+        style={{ backgroundColor: dispositionColor(ourDisposition) ?? undefined }}
+        title="Mission primaire"
+      >
         {ours.name}
       </span>
     );
@@ -50,8 +58,8 @@ export function MissionBadge({
       </summary>
 
       <div className="text-body-secondary small mt-2">
-        {dispositionShortLabel(ourDisposition)} contre{" "}
-        {dispositionShortLabel(opponentDisposition)}
+        <DispositionBadge disposition={ourDisposition} /> contre{" "}
+        <DispositionBadge disposition={opponentDisposition} />
       </div>
 
       <div className="mt-2">

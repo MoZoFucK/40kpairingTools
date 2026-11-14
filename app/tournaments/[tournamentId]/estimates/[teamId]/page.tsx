@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { areTeamEstimatesEditable, teamEstimatesClosedReason } from "@/lib/rounds/status";
-import { dispositionShortLabel } from "@/lib/lists/dispositions";
+import { DispositionBadge } from "@/components/lists/DispositionBadge";
 import { ruleKey } from "@/lib/validation/army";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { PageHelp } from "@/components/help/PageHelp";
@@ -134,7 +134,6 @@ export default async function MyEstimatesPage({
   });
 
   const statuses = (rounds ?? []).map((round) => round.status);
-  const disposition = dispositionShortLabel(me.disposition);
 
   return (
     <div className="container py-4" style={{ maxWidth: "36rem" }}>
@@ -144,7 +143,12 @@ export default async function MyEstimatesPage({
       <h1 className="h5 mb-1">Mes estimés — contre {team.name}</h1>
       <p className="text-body-secondary small">
         {me.name} · {me.army}
-        {disposition ? ` · ${disposition}` : ""}
+        {me.disposition ? (
+          <>
+            {" · "}
+            <DispositionBadge disposition={me.disposition} />
+          </>
+        ) : null}
       </p>
 
       <MyEstimates

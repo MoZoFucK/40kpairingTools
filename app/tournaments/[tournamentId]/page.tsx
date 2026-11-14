@@ -5,7 +5,6 @@ import { canManageTeam } from "@/lib/auth/roles";
 import { createClient } from "@/lib/supabase/server";
 import { teamSizeNotice } from "@/lib/validation/team";
 import { describeMissing, missingListFields } from "@/lib/lists/completeness";
-import { dispositionShortLabel } from "@/lib/lists/dispositions";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { PageHelp } from "@/components/help/PageHelp";
 import { endingAt, tournamentsTrail } from "@/lib/navigation/trail";
@@ -58,8 +57,7 @@ export default async function TournamentPage({
     listName: player.list_name,
     listContent: player.list_content,
     userId: player.user_id,
-    rawDisposition: player.disposition,
-    disposition: dispositionShortLabel(player.disposition),
+    disposition: player.disposition,
     missing: missingListFields(player),
   }));
 
@@ -238,7 +236,7 @@ export default async function TournamentPage({
                           detachment: player.detachment,
                           listName: player.listName,
                           listContent: player.listContent,
-                          disposition: player.rawDisposition,
+                          disposition: player.disposition,
                         }}
                         footer={
                           isMe || player.missing.length > 0 ? (

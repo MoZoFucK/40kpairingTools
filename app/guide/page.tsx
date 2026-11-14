@@ -152,7 +152,12 @@ export default function GuidePage() {
         <ul className="small mb-0">
           {DISPOSITIONS.map((disposition) => (
             <li key={disposition.value}>
-              <span className="fw-semibold">{disposition.label}</span>{" "}
+              <span
+                className="badge text-white"
+                style={{ backgroundColor: disposition.color }}
+              >
+                {disposition.label}
+              </span>{" "}
               <span className="text-body-secondary">— {disposition.gloss}</span>
             </li>
           ))}
