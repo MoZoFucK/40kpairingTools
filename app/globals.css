@@ -291,6 +291,18 @@
   --bs-breadcrumb-font-size: 0.875rem;
 }
 
+/*
+ * Sur les pages à colonne étroite (« Mes estimés », 36rem), le fil d'Ariane passait sur
+ * deux lignes. Il garde l'alignement à gauche du contenu mais peut déborder à droite de
+ * la colonne, jusqu'au bord de l'écran : 50vw + 50 % = moitié droite de l'écran plus
+ * moitié du conteneur centré. Il ne revient à la ligne que si l'écran est vraiment trop
+ * étroit.
+ */
+.app-breadcrumb-nav {
+  width: max-content;
+  max-width: calc(50vw + 50% - 1rem);
+}
+
 /* ---------------------------------------------------------------------------
  * Estimés
  *

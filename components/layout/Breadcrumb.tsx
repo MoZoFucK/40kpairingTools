@@ -16,7 +16,7 @@ export function Breadcrumb({ items }: { items: readonly Crumb[] }) {
   }
 
   return (
-    <nav aria-label="fil d'Ariane">
+    <nav aria-label="fil d'Ariane" className="app-breadcrumb-nav">
       <ol className="breadcrumb app-breadcrumb mb-3">
         {items.map((item, index) => {
           const isLast = index === items.length - 1;
